@@ -1,9 +1,25 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
+}
+
+
+// Read local.properties at the top of the file
+val properties = Properties()
+// Use project.rootProject.file to access file from root project directory
+val localPropertiesFile = project.rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    properties.load(FileInputStream(localPropertiesFile))
+} else {
+    // Throw an error or provide default if file is missing
+    println("Warning: local.properties not found. GITHUB_SECRET will be empty.")
 }
 
 android {
@@ -22,11 +38,26 @@ android {
 
     buildTypes {
         release {
+            // Define buildConfigField for release
+            // Get property or default to empty string if not found
+            val githubSecret = properties.getProperty("GITHUB_SECRET", "")
+            val githubClientId = properties.getProperty("GITHUB_CLIENT_ID", "")
+            // Define the field. Ensure quotes are correct for the String value.
+            buildConfigField("String", "GITHUB_SECRET", "\"$githubSecret\"")
+            buildConfigField("String", "GITHUB_CLIENT_ID", "\"$githubClientId\"")
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            // Define buildConfigField for debug
+            val githubSecret = properties.getProperty("GITHUB_SECRET", "")
+            val githubClientId = properties.getProperty("GITHUB_CLIENT_ID", "")
+            buildConfigField("String", "GITHUB_SECRET", "\"$githubSecret\"")
+            buildConfigField("String", "GITHUB_CLIENT_ID", "\"$githubClientId\"")
         }
     }
 
@@ -54,6 +85,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.androidx.test.espresso.idling.resources)
     implementation(libs.google.material)
+    implementation(libs.mmkv)
 
     // Architecture Components
     implementation(libs.room.runtime)
@@ -86,6 +118,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.accompanist.appcompat.theme)
     implementation(libs.accompanist.swiperefresh)
+
+    // image loading
+    implementation(libs.coil.kt)
+    implementation(libs.coil.kt.compose)
+    implementation(libs.coil3.kt.compose)
+    implementation(libs.coil3.kt.network)
 
     // Network
     implementation(libs.retrofit)

@@ -1,4 +1,4 @@
-package com.shengj.githubcompose.ui // 替换成你的包名
+package com.shengj.githubcompose.ui.login // 替换成你的包名
 
 import android.content.Context
 import android.net.Uri
@@ -83,23 +83,19 @@ fun LoginScreen(
     }
 }
 
-// 启动 Chrome Custom Tab 的辅助函数
+// Helper function to launch Chrome Custom Tab
 fun launchCustomTab(context: Context, url: String) {
     val customTabsIntent = CustomTabsIntent.Builder()
-        // 可以自定义 Custom Tab 的颜色等
-        // .setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary))
         .build()
     try {
         customTabsIntent.launchUrl(context, Uri.parse(url))
     } catch (e: Exception) {
-        // 处理无法打开 Custom Tab 的情况，例如没有浏览器
         e.printStackTrace()
-        // 可以显示一个 Toast 或 Snackbar 提示用户
     }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF000000) // 预览背景设为黑色
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen(onLoginClick = { _, _ -> /* 预览中不做任何事 */ })
+    LoginScreen(onLoginClick = { _, _ -> /* Do nothing in preview click */ })
 }
