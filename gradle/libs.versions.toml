@@ -2,11 +2,11 @@
 accompanist = "0.36.0"
 annotation = "1.9.1"
 androidDesugarJdkLibs = "2.1.5"
-androidGradlePlugin = "8.7.3"
+androidGradlePlugin = "8.9.1"
 androidxActivity = "1.10.1"
 androidxAppCompat = "1.7.0"
 androidxArchCore = "2.2.0"
-androidxBrowser = "1.4.0"
+androidxBrowser = "1.8.0"
 androidxComposeBom = "2025.04.00"
 androidxCompose = "1.2.0"
 androidxComposeRuntimeTracing = "1.7.8"
@@ -71,6 +71,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
 androidx-archcore-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "androidxArchCore" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidxBrowser" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
 androidx-compose-foundation-core = { group = "androidx.compose.foundation", name = "foundation" }
