@@ -17,6 +17,7 @@ import com.shengj.githubcompose.ui.login.AuthState
 import com.shengj.githubcompose.ui.login.AuthViewModel
 import com.shengj.githubcompose.ui.login.LoginScreen
 import com.shengj.githubcompose.ui.profile.ProfileScreen
+import com.shengj.githubcompose.ui.repositories.RepositoriesScreen
 
 @Composable
 fun AppNavigation(
@@ -56,7 +57,21 @@ fun AppNavigation(
     NavHost(navController = navController, startDestination = startDestination) {
         composable(AppScreen.Loading.route) { LoadingScreen() } // Simple loading indicator screen
         composable(AppScreen.Login.route) { LoginScreen() } // Your existing LoginScreen
-        composable(AppScreen.Profile.route) { ProfileScreen(authViewModel = authViewModel) } // New Profile Screen
+        composable(AppScreen.Profile.route) { 
+            ProfileScreen(
+                authViewModel = authViewModel,
+                onViewAllRepositories = {
+                    navController.navigate(AppScreen.Repositories.route)
+                }
+            )
+        } // New Profile Screen
+        composable(AppScreen.Repositories.route) {
+            RepositoriesScreen(
+                onNavigateBack = {
+                    navController.navigateUp()
+                }
+            )
+        }
         // ... other composables (search, repo details etc)
     }
 }
@@ -66,6 +81,7 @@ sealed class AppScreen(val route: String) {
     object Loading : AppScreen("loading")
     object Login : AppScreen("login")
     object Profile : AppScreen("profile")
+    object Repositories : AppScreen("repositories")
     // Add other screens
 }
 

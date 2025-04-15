@@ -1,6 +1,6 @@
 package com.shengj.githubcompose.di
 
-import com.shengj.githubcompose.data.DataStoreHelper
+import com.shengj.githubcompose.data.network.AuthorizationInterceptor
 import com.shengj.githubcompose.data.network.GithubApiService
 import dagger.Module
 import dagger.Provides
@@ -22,14 +22,7 @@ object NetworkModule {
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            .addInterceptor { chain -> // Interceptor to add Auth token if available
-                val token = DataStoreHelper.getToken()
-                val request = chain.request().newBuilder()
-                token?.let {
-                    request.addHeader("Authorization", "token $it")
-                }
-                chain.proceed(request.build())
-            }
+            .addInterceptor(AuthorizationInterceptor())
             .build()
     }
 

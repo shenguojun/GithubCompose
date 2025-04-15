@@ -11,7 +11,6 @@ import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -28,16 +27,18 @@ interface GithubApiService {
     ): Response<SearchResponse> // Define SearchResponse data class
 
     // Example: Get User Repos (Requires Auth)
-    @GET("user/repos")
+    @GET("users/{username}/repos")
     suspend fun getUserRepos(
-        @Header("Authorization") token: String,
-        @Query("type") type: String = "owner"
+        @Path("username") username: String,
+        @Query("type") type: String = "owner",
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 20,
+        @Query("sort") sort: String = "updated"
     ): Response<List<Repo>> // Define Repo data class
 
     // Example: Create Issue (Requires Auth)
     @POST("repos/{owner}/{repo}/issues")
     suspend fun createIssue(
-        @Header("Authorization") token: String,
         @Path("owner") owner: String,
         @Path("repo") repo: String,
         @Body issueRequestBody: IssueRequestBody // Define IssueRequestBody data class

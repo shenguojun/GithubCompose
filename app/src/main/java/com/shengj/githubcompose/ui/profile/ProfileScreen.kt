@@ -59,7 +59,8 @@ import com.shengj.githubcompose.ui.login.AuthViewModel
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = hiltViewModel(),
+    onViewAllRepositories: () -> Unit
 ) {
     val uiState by profileViewModel.uiState.collectAsState()
 
@@ -106,7 +107,7 @@ fun ProfileScreen(
                     )
                 }
                 uiState.user != null -> {
-                    UserProfileContent(uiState = uiState)
+                    UserProfileContent(uiState = uiState, onViewAllRepositories = onViewAllRepositories)
                 }
             }
         }
@@ -114,7 +115,10 @@ fun ProfileScreen(
 }
 
 @Composable
-fun UserProfileContent(uiState: ProfileUiState) {
+fun UserProfileContent(
+    uiState: ProfileUiState,
+    onViewAllRepositories: () -> Unit
+) {
     val user = uiState.user!!
     Column(
         modifier = Modifier
@@ -160,12 +164,18 @@ fun UserProfileContent(uiState: ProfileUiState) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Repository Section
-        RepositorySection(uiState = uiState)
+        RepositorySection(
+            uiState = uiState,
+            onViewAllRepositories = onViewAllRepositories
+        )
     }
 }
 
 @Composable
-fun RepositorySection(uiState: ProfileUiState) {
+fun RepositorySection(
+    uiState: ProfileUiState,
+    onViewAllRepositories: () -> Unit
+) {
     Column {
         // Repository Header
         Row(
@@ -176,19 +186,19 @@ fun RepositorySection(uiState: ProfileUiState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Repositories",
+                text = "仓库",
                 style = MaterialTheme.typography.h6,
                 fontWeight = FontWeight.Bold
             )
-            TextButton(onClick = { /* TODO: Navigate to repositories list */ }) {
-                Text("View All")
+            TextButton(onClick = onViewAllRepositories) {
+                Text("查看全部")
             }
         }
 
         // Pinned Repositories
         if (uiState.pinnedRepos.isNotEmpty()) {
             Text(
-                text = "Pinned",
+                text = "置顶",
                 style = MaterialTheme.typography.subtitle1,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -329,6 +339,6 @@ fun UserProfileContentPreview() {
     )
     
     MaterialTheme {
-        UserProfileContent(uiState = dummyUiState)
+        UserProfileContent(uiState = dummyUiState, onViewAllRepositories = {})
     }
 }

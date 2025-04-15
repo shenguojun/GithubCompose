@@ -88,15 +88,26 @@ class GithubRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO) // Run network call on IO thread
 
-    suspend fun getUserRepos(): Flow<Result<List<Repo>>> = flow {
-        val token = getToken() // Get token from DataStore
+    suspend fun getUserRepos(page: Int = 1, perPage: Int = 20): Flow<Result<List<Repo>>> = flow {
+        val token = getToken()
         if (token == null) {
             emit(Result.failure(Exception("Not authenticated")))
             return@flow
         }
         try {
-            // Pass token in the header via OkHttp Interceptor or directly
-            val response = apiService.getUserRepos("token $token") // Or rely on interceptor
+            // 先获取当前用户信息
+            val userResponse = apiService.getCurrentUser()
+            if (!userResponse.isSuccessful || userResponse.body() == null) {
+                emit(Result.failure(Exception("Failed to get current user")))
+                return@flow
+            }
+            
+            val username = userResponse.body()!!.login
+            val response = apiService.getUserRepos(
+                username = username,
+                page = page,
+                perPage = perPage
+            )
             if (response.isSuccessful && response.body() != null) {
                 emit(Result.success(response.body()!!))
             } else {
@@ -113,15 +124,9 @@ class GithubRepository @Inject constructor(
         title: String,
         body: String?
     ): Flow<Result<Issue>> = flow {
-        val token = getToken()
-        if (token == null) {
-            emit(Result.failure(Exception("Not authenticated")))
-            return@flow
-        }
         try {
             val requestBody = IssueRequestBody(title, body)
             val response = apiService.createIssue(
-                "token $token",
                 owner,
                 repoName,
                 requestBody
