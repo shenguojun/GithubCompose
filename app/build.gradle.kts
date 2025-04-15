@@ -10,7 +10,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-
 // Read local.properties at the top of the file
 val properties = Properties()
 // Use project.rootProject.file to access file from root project directory
@@ -116,6 +115,11 @@ dependencies {
     implementation(libs.accompanist.appcompat.theme)
     implementation(libs.accompanist.swiperefresh)
     implementation(libs.accompanist.systemuicontroller)
+
+    // Markdown Rendering
+    implementation(libs.markdown.compose)
+    implementation(libs.markdown.compose.code)
+    implementation(libs.markdown.compose.coil3)
 
     // image loading
     implementation(libs.coil.kt)

@@ -10,11 +10,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.shengj.githubcompose.ui.profile.ProfileScreen
 import com.shengj.githubcompose.ui.repositories.RepositoriesScreen
+import com.shengj.githubcompose.ui.repository.RepositoryScreen
 
 @Composable
 fun UserNavigation(
@@ -57,16 +60,27 @@ fun UserNavigation(
         composable(AppScreen.Profile.route) { 
             ProfileScreen(
                 authViewModel = authViewModel,
-                onViewAllRepositories = {
-                    navController.navigate(AppScreen.Repositories.route)
-                }
+                navController = navController
             )
         } // New Profile Screen
         composable(AppScreen.Repositories.route) {
             RepositoriesScreen(
-                onNavigateBack = {
-                    navController.navigateUp()
-                }
+                navController = navController
+            )
+        }
+        composable(
+            route = AppScreen.Repository.route,
+            arguments = listOf(
+                navArgument("owner") { type = NavType.StringType },
+                navArgument("repoName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val owner = backStackEntry.arguments?.getString("owner") ?: ""
+            val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
+            RepositoryScreen(
+                owner = owner,
+                repoName = repoName,
+                onNavigateBack = { navController.navigateUp() }
             )
         }
         // ... other composables (search, repo details etc)
@@ -79,6 +93,9 @@ sealed class AppScreen(val route: String) {
     object Login : AppScreen("login")
     object Profile : AppScreen("profile")
     object Repositories : AppScreen("repositories")
+    object Repository : AppScreen("repository/{owner}/{repoName}") {
+        fun createRoute(owner: String, repoName: String) = "repository/$owner/$repoName"
+    }
     // Add other screens
 }
 

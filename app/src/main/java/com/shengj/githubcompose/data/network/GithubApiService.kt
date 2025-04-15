@@ -3,6 +3,7 @@ package com.shengj.githubcompose.data.network
 import com.shengj.githubcompose.data.model.AccessTokenResponse
 import com.shengj.githubcompose.data.model.Issue
 import com.shengj.githubcompose.data.model.IssueRequestBody
+import com.shengj.githubcompose.data.model.Readme
 import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.SearchResponse
 import com.shengj.githubcompose.data.model.User
@@ -68,4 +69,13 @@ interface GithubApiService {
         @Query("sort") sort: String = "pushed",
         @Query("per_page") perPage: Int = 6
     ): Response<List<Repo>>
+
+    @GET("user/repos")
+    suspend fun getUserRepositories(@Query("page") page: Int, @Query("per_page") perPage: Int): Response<List<Repo>>
+
+    @GET("repos/{owner}/{repo}")
+    suspend fun getRepository(@Path("owner") owner: String, @Path("repo") repo: String): Response<Repo>
+
+    @GET("repos/{owner}/{repo}/readme")
+    suspend fun getReadme(@Path("owner") owner: String, @Path("repo") repo: String): Response<Readme>
 }

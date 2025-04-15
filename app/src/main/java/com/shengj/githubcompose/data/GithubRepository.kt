@@ -5,6 +5,7 @@ import android.util.Log
 import com.shengj.githubcompose.BuildConfig
 import com.shengj.githubcompose.data.model.Issue
 import com.shengj.githubcompose.data.model.IssueRequestBody
+import com.shengj.githubcompose.data.model.Readme
 import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.User
 import com.shengj.githubcompose.data.network.GithubApiService
@@ -173,5 +174,34 @@ class GithubRepository @Inject constructor(
     fun clearAuthToken() { DataStoreHelper.clearToken() }
     fun isAuthenticated(): Boolean = DataStoreHelper.getToken() != null
     fun getToken(): String? = DataStoreHelper.getToken()
-    // ... other repository methods (getPopularRepos, getRepoDetails)
+
+    // 获取单个仓库信息
+    fun getRepository(owner: String, repoName: String): Flow<Result<Repo>> = flow {
+        try {
+            val response = apiService.getRepository(owner, repoName)
+            if (response.isSuccessful && response.body() != null) {
+                emit(Result.success(response.body()!!))
+            } else {
+                emit(Result.failure(Exception("Error fetching repository: ${response.code()}")))
+            }
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }.flowOn(Dispatchers.IO)
+
+    // 获取 README 内容
+    fun getReadme(owner: String, repoName: String): Flow<Result<Readme>> = flow {
+        try {
+            val response = apiService.getReadme(owner, repoName)
+            if (response.isSuccessful && response.body() != null) {
+                emit(Result.success(response.body()!!))
+            } else if (response.code() == 404) {
+                 emit(Result.failure(Exception("No README found"))) // Specific handling for 404
+            } else {
+                emit(Result.failure(Exception("Error fetching README: ${response.code()}")))
+            }
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }.flowOn(Dispatchers.IO)
 }

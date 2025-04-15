@@ -1,6 +1,7 @@
 package com.shengj.githubcompose.ui.profile
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,19 +20,14 @@ import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
-import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TagFaces
@@ -51,64 +46,45 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.User
+import com.shengj.githubcompose.ui.login.AppScreen
 import com.shengj.githubcompose.ui.login.AuthViewModel
 
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel(),
     authViewModel: AuthViewModel = hiltViewModel(),
-    onViewAllRepositories: () -> Unit
+    navController: NavController
 ) {
     val uiState by profileViewModel.uiState.collectAsState()
 
-    Scaffold(
-        modifier = Modifier.statusBarsPadding(),
-        topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        "Profile",
-                        color = Color.Black
-                    ) 
-                },
-                backgroundColor = Color.White,
-                elevation = 0.dp,
-                actions = {
-                    IconButton(onClick = { authViewModel.logout() }) {
-                        Icon(
-                            Icons.Default.Logout,
-                            contentDescription = "Logout",
-                            tint = Color.Black
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                uiState.error != null -> {
-                    Text(
-                        text = "Error: ${uiState.error}",
-                        color = MaterialTheme.colors.error,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(16.dp)
-                    )
-                }
-                uiState.user != null -> {
-                    UserProfileContent(uiState = uiState, onViewAllRepositories = onViewAllRepositories)
-                }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        when {
+            uiState.isLoading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+            uiState.error != null -> {
+                Text(
+                    text = "Error: ${uiState.error}",
+                    color = MaterialTheme.colors.error,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(16.dp)
+                )
+            }
+            uiState.user != null -> {
+                UserProfileContent(
+                    uiState = uiState, 
+                    navController = navController,
+                    onLogout = { authViewModel.logout() }
+                )
             }
         }
     }
@@ -117,7 +93,8 @@ fun ProfileScreen(
 @Composable
 fun UserProfileContent(
     uiState: ProfileUiState,
-    onViewAllRepositories: () -> Unit
+    navController: NavController,
+    onLogout: () -> Unit
 ) {
     val user = uiState.user!!
     Column(
@@ -126,8 +103,8 @@ fun UserProfileContent(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Header section (Avatar, Name, Username)
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // Header section (Avatar, Name, Username, Logout Button)
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Image(
                 painter = rememberAsyncImagePainter(user.avatarUrl),
                 contentDescription = "${user.login} avatar",
@@ -137,10 +114,13 @@ fun UserProfileContent(
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = user.name ?: user.login, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Text(text = user.login, fontSize = 16.sp, color = Color.Gray)
             }
+            TextButton(onClick = onLogout) { 
+                Text("登出")
+             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -166,7 +146,8 @@ fun UserProfileContent(
         // Repository Section
         RepositorySection(
             uiState = uiState,
-            onViewAllRepositories = onViewAllRepositories
+            navController = navController,
+            onViewAll = { navController.navigate(AppScreen.Repositories.route) }
         )
     }
 }
@@ -174,7 +155,8 @@ fun UserProfileContent(
 @Composable
 fun RepositorySection(
     uiState: ProfileUiState,
-    onViewAllRepositories: () -> Unit
+    navController: NavController,
+    onViewAll: () -> Unit
 ) {
     Column {
         // Repository Header
@@ -190,7 +172,7 @@ fun RepositorySection(
                 style = MaterialTheme.typography.h6,
                 fontWeight = FontWeight.Bold
             )
-            TextButton(onClick = onViewAllRepositories) {
+            TextButton(onClick = onViewAll) {
                 Text("查看全部")
             }
         }
@@ -205,19 +187,27 @@ fun RepositorySection(
             
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 uiState.pinnedRepos.forEach { repo ->
-                    RepositoryCard(repo = repo)
+                    RepositoryCard(repo = repo, onClick = {
+                        navController.navigate(AppScreen.Repository.createRoute(repo.owner.login, repo.name))
+                    })
                 }
             }
+        } else if (!uiState.isLoading) {
+            Text("没有置顶仓库", modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
         }
     }
 }
 
 @Composable
-fun RepositoryCard(repo: Repo) {
+fun RepositoryCard(
+    repo: Repo,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
         elevation = 4.dp
     ) {
         Column(
@@ -244,101 +234,97 @@ fun RepositoryCard(repo: Repo) {
                 modifier = Modifier.padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                repo.language?.let {
-                    Icon(
-                        imageVector = Icons.Default.Circle,
-                        contentDescription = null,
-                        modifier = Modifier.size(12.dp),
-                        tint = getLanguageColor(it)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.caption
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                }
-                
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = Color.Gray
-                )
+                Icon(Icons.Default.Star, contentDescription = "Stars", tint = Color.Gray, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "${repo.stargazersCount}",
-                    style = MaterialTheme.typography.caption
-                )
+                Text(text = "${repo.stargazersCount}", color = Color.Gray)
+                
+                repo.language?.let {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    // Simple dot divider
+                    Text(" • ", color = Color.Gray)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = it, color = Color.Gray)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun getLanguageColor(language: String): Color {
-    return when (language.lowercase()) {
-        "kotlin" -> Color(0xFF7F52FF)
-        "java" -> Color(0xFFB07219)
-        "python" -> Color(0xFF3572A5)
-        "javascript" -> Color(0xFFF1E05A)
-        else -> Color.Gray
-    }
-}
-
-@Composable
 fun InfoRow(icon: ImageVector, text: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 4.dp)
-    ) {
-        Icon(imageVector = icon, contentDescription = null, tint = Color.Gray)
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = text, fontSize = 14.sp)
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+        Icon(icon, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = text, style = MaterialTheme.typography.body1)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun UserProfileContentPreview() {
-    // Define a dummy User object matching your data class structure
+fun ProfileScreenPreview() {
     val dummyUser = User(
-        login = "shenguojun",
-        id = 12345,
-        avatarUrl = "https://avatars.githubusercontent.com/u/your_user_id?v=4",
-        name = "Lawrence/中国骏",
-        company = "Netease Youdao",
-        location = "GuangZhou, China",
-        blog = "https://shenguojun.github.io/",
-        email = "junguoshen@outlook.com",
-        bio = "Happy codding!",
-        followers = 26,
-        following = 22,
-        htmlUrl = ""
+        login = "octocat",
+        id = 1,
+        avatarUrl = "",
+        htmlUrl = "https://github.com/octocat",
+        name = "The Octocat",
+        company = "GitHub",
+        blog = "github.blog",
+        location = "San Francisco",
+        email = "octocat@github.com",
+        bio = "This is a bio",
+        followers = 100,
+        following = 10
     )
-    
-    // Create dummy UI state with some pinned repos
-    val dummyPinnedRepos = listOf(
-        Repo(
-            id = 1,
-            name = "GithubCompose",
-            fullName = "shenguojun/GithubCompose",
-            owner = dummyUser,
-            description = "A GitHub client built with Jetpack Compose",
-            stargazersCount = 45,
-            language = "Kotlin",
-            htmlUrl = "https://github.com/shenguojun/GithubCompose"
-        )
+    val dummyRepo = Repo(
+        id = 1,
+        name = "Spoon-Knife",
+        fullName = "octocat/Spoon-Knife",
+        owner = dummyUser,
+        description = "This repo is for demonstration purposes only.",
+        stargazersCount = 1000,
+        forksCount = 100,
+        language = "HTML",
+        htmlUrl = "https://github.com/octocat/Spoon-Knife"
     )
-    
-    val dummyUiState = ProfileUiState(
-        isLoading = false,
-        user = dummyUser,
-        pinnedRepos = dummyPinnedRepos,
-        error = null
-    )
+    val dummyUiState = ProfileUiState(user = dummyUser, pinnedRepos = List(3) { dummyRepo })
+    val navController = rememberNavController()
+    hiltViewModel()
     
     MaterialTheme {
-        UserProfileContent(uiState = dummyUiState, onViewAllRepositories = {})
+        UserProfileContent(uiState = dummyUiState, navController = navController, onLogout = {}) 
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RepositoryCardPreview() {
+    val dummyUser = User(
+        login = "octocat",
+        id = 1,
+        avatarUrl = "",
+        htmlUrl = "https://github.com/octocat",
+        name = "The Octocat",
+        company = "GitHub",
+        blog = "github.blog",
+        location = "San Francisco",
+        email = "octocat@github.com",
+        bio = "This is a bio",
+        followers = 100,
+        following = 10
+    )
+    val dummyRepo = Repo(
+        id = 1,
+        name = "Long-Repository-Name-Here-To-Test-Overflow",
+        fullName = "octocat/Spoon-Knife",
+        owner = dummyUser,
+        description = "This is a very long description to test how text wrapping and ellipsis work in the card preview.",
+        stargazersCount = 12345,
+        forksCount = 500,
+        language = "Kotlin",
+        htmlUrl = "https://github.com/octocat/Spoon-Knife"
+    )
+    MaterialTheme {
+        RepositoryCard(repo = dummyRepo, onClick = {})
     }
 }

@@ -11,6 +11,8 @@ data class Repo(
     val description: String?,
     @SerializedName("stargazers_count")
     val stargazersCount: Int,
+    @SerializedName("forks_count")
+    val forksCount: Int,
     val language: String?,
     @SerializedName("html_url")
     val htmlUrl: String
