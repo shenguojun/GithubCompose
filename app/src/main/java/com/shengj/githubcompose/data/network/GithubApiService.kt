@@ -78,4 +78,19 @@ interface GithubApiService {
 
     @GET("repos/{owner}/{repo}/readme")
     suspend fun getReadme(@Path("owner") owner: String, @Path("repo") repo: String): Response<Readme>
+
+    @GET("repos/{owner}/{repo}/issues")
+    suspend fun getIssues(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String,
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 20
+    ): Response<List<Issue>>
+
+    @GET("repos/{owner}/{repo}/issues/{issue_number}")
+    suspend fun getIssueDetail(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String,
+        @Path("issue_number") issueNumber: Int
+    ): Response<Issue>
 }

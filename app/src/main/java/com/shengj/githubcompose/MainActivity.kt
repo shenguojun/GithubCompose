@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.shengj.githubcompose.ui.AppNavigation
 import com.shengj.githubcompose.ui.login.AuthViewModel
+import com.shengj.githubcompose.ui.navigation.AppNavigation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

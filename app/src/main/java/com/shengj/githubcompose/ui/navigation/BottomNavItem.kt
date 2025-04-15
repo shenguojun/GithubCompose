@@ -1,4 +1,4 @@
-package com.shengj.githubcompose.ui
+package com.shengj.githubcompose.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -10,4 +10,4 @@ sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: 
     object Popular : BottomNavItem("popular", Icons.Default.Home, "热门")
     object Search : BottomNavItem("search", Icons.Default.Search, "搜索") // Placeholder for Search
     object ProfileNav : BottomNavItem("profile_nav", Icons.Default.Person, "我的") // Wrapper for Profile/Login flow
-} 
+}

@@ -62,7 +62,8 @@ fun RepositoryScreen(
     repoName: String,
     viewModel: RepositoryViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
-    onNavigateToRaiseIssue: (owner: String, repoName: String) -> Unit = { _, _ -> }
+    onNavigateToRaiseIssue: (owner: String, repoName: String) -> Unit = { _, _ -> },
+    onNavigateToIssues: (owner: String, repoName: String) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -87,6 +88,11 @@ fun RepositoryScreen(
                     }
                 },
                 actions = {
+                    TextButton(
+                        onClick = { onNavigateToIssues(owner, repoName) }
+                    ) {
+                        Text("议题", color = MaterialTheme.colors.primary)
+                    }
                     TextButton(
                         onClick = { onNavigateToRaiseIssue(owner, repoName) }
                     ) {

@@ -1,4 +1,4 @@
-package com.shengj.githubcompose.ui
+package com.shengj.githubcompose.ui.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -27,11 +27,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.shengj.githubcompose.ui.issue.IssueDetailScreen
 import com.shengj.githubcompose.ui.issue.RaiseIssueScreen
+import com.shengj.githubcompose.ui.issues.IssuesScreen
 import com.shengj.githubcompose.ui.login.AuthState
 import com.shengj.githubcompose.ui.login.AuthViewModel
 import com.shengj.githubcompose.ui.login.LoginScreen
-import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.popular.PopularReposScreen
 import com.shengj.githubcompose.ui.profile.ProfileScreen
 import com.shengj.githubcompose.ui.repositories.RepositoriesScreen
@@ -128,6 +129,9 @@ fun AppNavigation(
                         onNavigateBack = { navController.navigateUp() },
                         onNavigateToRaiseIssue = { ownerParam, repoNameParam ->
                             navController.navigate(AppScreen.RaiseIssue.createRoute(ownerParam, repoNameParam))
+                        },
+                        onNavigateToIssues = { ownerParam, repoNameParam ->
+                            navController.navigate(AppScreen.Issues.createRoute(ownerParam, repoNameParam))
                         }
                     )
                 }
@@ -161,11 +165,34 @@ fun AppNavigation(
                         navArgument("issueNumber") { type = NavType.IntType }
                     )
                 ) { backStackEntry ->
-                    backStackEntry.arguments?.getString("owner") ?: ""
-                    backStackEntry.arguments?.getString("repoName") ?: ""
+                    val owner = backStackEntry.arguments?.getString("owner") ?: ""
+                    val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
                     val issueNumber = backStackEntry.arguments?.getInt("issueNumber") ?: 0
-                    // TODO: Add IssueDetailScreen here
-                    Text("Issue #$issueNumber")
+                    IssueDetailScreen(
+                        owner = owner,
+                        repoName = repoName,
+                        issueNumber = issueNumber,
+                        onNavigateBack = { navController.navigateUp() }
+                    )
+                }
+
+                composable(
+                    route = AppScreen.Issues.route,
+                    arguments = listOf(
+                        navArgument("owner") { type = NavType.StringType },
+                        navArgument("repoName") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val owner = backStackEntry.arguments?.getString("owner") ?: ""
+                    val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
+                    IssuesScreen(
+                        owner = owner,
+                        repoName = repoName,
+                        onNavigateBack = { navController.navigateUp() },
+                        onNavigateToDetail = { ownerParam, repoNameParam, issueNumber ->
+                            navController.navigate(AppScreen.IssueDetail.createRoute(ownerParam, repoNameParam, issueNumber))
+                        }
+                    )
                 }
             }
         }

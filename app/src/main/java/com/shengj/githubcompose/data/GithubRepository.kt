@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class GithubRepository @Inject constructor(
@@ -202,4 +203,26 @@ class GithubRepository @Inject constructor(
             emit(Result.failure(e))
         }
     }.flowOn(Dispatchers.IO)
+
+    suspend fun getIssues(owner: String, repoName: String, page: Int = 1, perPage: Int = 20): List<Issue> {
+        return withContext(Dispatchers.IO) {
+            val response = apiService.getIssues(owner, repoName, page, perPage)
+            if (response.isSuccessful) {
+                response.body() ?: emptyList()
+            } else {
+                throw Exception(response.errorBody()?.string() ?: "获取议题失败")
+            }
+        }
+    }
+
+    suspend fun getIssueDetail(owner: String, repoName: String, issueNumber: Int): Issue {
+        return withContext(Dispatchers.IO) {
+            val response = apiService.getIssueDetail(owner, repoName, issueNumber)
+            if (response.isSuccessful) {
+                response.body() ?: throw Exception("获取议题详情失败")
+            } else {
+                throw Exception(response.errorBody()?.string() ?: "获取议题详情失败")
+            }
+        }
+    }
 }

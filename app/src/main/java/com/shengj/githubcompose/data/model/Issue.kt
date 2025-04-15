@@ -7,7 +7,10 @@ data class Issue(
     val number: Int,
     val title: String,
     val state: String,
-    @SerializedName("html_url")
-    val htmlUrl: String
-    // ...
+    val body: String?,
+    @SerializedName("created_at")
+    val createdAt: String,
+    @SerializedName("updated_at")
+    val updatedAt: String,
+    val user: User
 )

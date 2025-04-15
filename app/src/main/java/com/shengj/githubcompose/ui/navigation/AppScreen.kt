@@ -8,6 +8,9 @@ sealed class AppScreen(val route: String) {
     object Repository : AppScreen("repository/{owner}/{repoName}") {
         fun createRoute(owner: String, repoName: String) = "repository/$owner/$repoName"
     }
+    object Issues : AppScreen("repository/{owner}/{repoName}/issues") {
+        fun createRoute(owner: String, repoName: String) = "repository/$owner/$repoName/issues"
+    }
     object RaiseIssue : AppScreen("repository/{owner}/{repoName}/issues/new") {
         fun createRoute(owner: String, repoName: String) = "repository/$owner/$repoName/issues/new"
     }
