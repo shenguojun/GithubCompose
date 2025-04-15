@@ -1,7 +1,8 @@
 package com.shengj.githubcompose.ui.login // 替换成你的包名
 
 import android.content.Context
-import android.net.Uri
+import android.content.Intent
+import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.shengj.githubcompose.R
 
@@ -96,10 +98,25 @@ fun LoginScreen(
 
 // Helper function to launch Chrome Custom Tab
 fun launchCustomTab(context: Context, url: String) {
+    val uri = url.toUri()
+    val packageName = CustomTabsClient.getPackageName(context, null) // Pass null for default browser list
+    if (packageName == null) {
+        // Fallback: No CCT provider found. Open in standard browser or handle error.
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            // Handle inability to launch any browser
+            println("Error launching URL: ${e.message}")
+        }
+        return
+    }
     val customTabsIntent = CustomTabsIntent.Builder()
+        .setShowTitle(true)
         .build()
+    customTabsIntent.intent.setPackage(packageName)
     try {
-        customTabsIntent.launchUrl(context, Uri.parse(url))
+        customTabsIntent.launchUrl(context, uri)
     } catch (e: Exception) {
         e.printStackTrace()
     }

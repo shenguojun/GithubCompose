@@ -27,9 +27,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.shengj.githubcompose.ui.issue.RaiseIssueScreen
 import com.shengj.githubcompose.ui.login.AuthState
 import com.shengj.githubcompose.ui.login.AuthViewModel
 import com.shengj.githubcompose.ui.login.LoginScreen
+import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.popular.PopularReposScreen
 import com.shengj.githubcompose.ui.profile.ProfileScreen
 import com.shengj.githubcompose.ui.repository.RepositoryScreen
@@ -104,11 +106,11 @@ fun AppNavigation(
                         LoginScreen()
                     }
                 }
-                composable("login") {
+                composable(AppScreen.Login.route) {
                     LoginScreen()
                 }
                 composable(
-                    route = "repository/{owner}/{repoName}",
+                    route = AppScreen.Repository.route,
                     arguments = listOf(
                         navArgument("owner") { type = NavType.StringType },
                         navArgument("repoName") { type = NavType.StringType }
@@ -119,8 +121,47 @@ fun AppNavigation(
                     RepositoryScreen(
                         owner = owner,
                         repoName = repoName,
-                        onNavigateBack = { navController.navigateUp() }
+                        onNavigateBack = { navController.navigateUp() },
+                        onNavigateToRaiseIssue = { ownerParam, repoNameParam ->
+                            navController.navigate(AppScreen.RaiseIssue.createRoute(ownerParam, repoNameParam))
+                        }
                     )
+                }
+
+                composable(
+                    route = AppScreen.RaiseIssue.route,
+                    arguments = listOf(
+                        navArgument("owner") { type = NavType.StringType },
+                        navArgument("repoName") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val owner = backStackEntry.arguments?.getString("owner") ?: ""
+                    val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
+                    RaiseIssueScreen(
+                        owner = owner,
+                        repoName = repoName,
+                        onNavigateBack = { navController.navigateUp() },
+                        onIssueCreated = { issueNumber ->
+                            navController.navigate(AppScreen.IssueDetail.createRoute(owner, repoName, issueNumber)) {
+                                popUpTo(AppScreen.RaiseIssue.route) { inclusive = true }
+                            }
+                        }
+                    )
+                }
+
+                composable(
+                    route = AppScreen.IssueDetail.route,
+                    arguments = listOf(
+                        navArgument("owner") { type = NavType.StringType },
+                        navArgument("repoName") { type = NavType.StringType },
+                        navArgument("issueNumber") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    backStackEntry.arguments?.getString("owner") ?: ""
+                    backStackEntry.arguments?.getString("repoName") ?: ""
+                    val issueNumber = backStackEntry.arguments?.getInt("issueNumber") ?: 0
+                    // TODO: Add IssueDetailScreen here
+                    Text("Issue #$issueNumber")
                 }
             }
         }

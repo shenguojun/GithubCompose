@@ -1,0 +1,137 @@
+package com.shengj.githubcompose.ui.issue
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+
+@Composable
+fun RaiseIssueScreen(
+    owner: String,
+    repoName: String,
+    onNavigateBack: () -> Unit,
+    onIssueCreated: (issueNumber: Int) -> Unit,
+    viewModel: IssueViewModel = hiltViewModel()
+) {
+    var title by remember { mutableStateOf("") }
+    var body by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val scaffoldState = rememberScaffoldState()
+    val uiState by viewModel.uiState.collectAsState()
+
+    // 显示错误消息
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            scaffoldState.snackbarHostState.showSnackbar(
+                message = errorMessage!!,
+                duration = SnackbarDuration.Short
+            )
+            errorMessage = null
+        }
+    }
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = {
+            TopAppBar(
+                title = { Text("创建议题") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回")
+                    }
+                },
+                actions = {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(4.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        IconButton(
+                            onClick = {
+                                viewModel.createIssue(
+                                    owner = owner,
+                                    repo = repoName,
+                                    title = title,
+                                    body = body,
+                                    onSuccess = { issueNumber ->
+                                        onIssueCreated(issueNumber)
+                                    },
+                                    onError = { error ->
+                                        errorMessage = error
+                                    }
+                                )
+                            },
+                            enabled = title.isNotBlank() && !uiState.isLoading
+                        ) {
+                            Icon(
+                                Icons.Filled.Send,
+                                contentDescription = "发布",
+                                tint = if (title.isNotBlank() && !uiState.isLoading)
+                                    MaterialTheme.colors.primary
+                                else
+                                    MaterialTheme.colors.onSurface.copy(alpha = 0.38f)
+                            )
+                        }
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            OutlinedTextField(
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("标题") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                enabled = !uiState.isLoading,
+                singleLine = true
+            )
+
+            OutlinedTextField(
+                value = body,
+                onValueChange = { body = it },
+                label = { Text("发表评论（可选）") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                enabled = !uiState.isLoading,
+                maxLines = Int.MAX_VALUE
+            )
+        }
+    }
+} 

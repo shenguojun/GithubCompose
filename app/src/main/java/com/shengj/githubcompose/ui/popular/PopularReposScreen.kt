@@ -27,7 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.shengj.githubcompose.ui.login.AppScreen
+import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.profile.RepositoryCard
 
 @Composable

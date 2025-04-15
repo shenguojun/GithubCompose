@@ -51,8 +51,8 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.User
-import com.shengj.githubcompose.ui.login.AppScreen
 import com.shengj.githubcompose.ui.login.AuthViewModel
+import com.shengj.githubcompose.ui.navigation.AppScreen
 
 @Composable
 fun ProfileScreen(
