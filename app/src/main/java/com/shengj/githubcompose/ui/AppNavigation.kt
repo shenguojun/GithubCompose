@@ -27,6 +27,7 @@ import com.shengj.githubcompose.ui.login.LoginScreen
 import com.shengj.githubcompose.ui.popular.PopularReposScreen
 import com.shengj.githubcompose.ui.profile.ProfileScreen
 import com.shengj.githubcompose.ui.repository.RepositoryScreen
+import com.shengj.githubcompose.ui.search.SearchScreen
 
 @Composable
 fun AppNavigation(
@@ -89,7 +90,7 @@ fun AppNavigation(
                 PopularReposScreen(navController = navController)
             }
             composable(BottomNavItem.Search.route) {
-                Text("Search Screen Placeholder")
+                SearchScreen(navController = navController)
             }
             composable(BottomNavItem.ProfileNav.route) {
                 if (authState is AuthState.Authenticated) {
