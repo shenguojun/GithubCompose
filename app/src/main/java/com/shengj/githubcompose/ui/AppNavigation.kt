@@ -34,6 +34,7 @@ import com.shengj.githubcompose.ui.login.LoginScreen
 import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.popular.PopularReposScreen
 import com.shengj.githubcompose.ui.profile.ProfileScreen
+import com.shengj.githubcompose.ui.repositories.RepositoriesScreen
 import com.shengj.githubcompose.ui.repository.RepositoryScreen
 import com.shengj.githubcompose.ui.search.SearchScreen
 
@@ -108,6 +109,9 @@ fun AppNavigation(
                 }
                 composable(AppScreen.Login.route) {
                     LoginScreen()
+                }
+                composable(AppScreen.Repositories.route) {
+                    RepositoriesScreen(navController = navController)
                 }
                 composable(
                     route = AppScreen.Repository.route,

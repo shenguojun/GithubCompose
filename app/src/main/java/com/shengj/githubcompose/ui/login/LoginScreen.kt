@@ -27,11 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.shengj.githubcompose.BuildConfig
 import com.shengj.githubcompose.R
 
 // GitHub OAuth URL and Client ID
 const val GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
-const val GITHUB_CLIENT_ID = "Iv23ct4N9yPiZcTSWlno"
+const val GITHUB_CLIENT_ID = BuildConfig.GITHUB_CLIENT_ID
 
 @Composable
 fun LoginScreen(
