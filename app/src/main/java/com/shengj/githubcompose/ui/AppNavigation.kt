@@ -8,7 +8,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -41,19 +40,6 @@ fun AppNavigation(
         BottomNavItem.ProfileNav
     )
 
-    // 监听认证状态变化，登录成功后导航到 Profile 页面
-    LaunchedEffect(authState) {
-        if (authState is AuthState.Authenticated) {
-            navController.navigate(BottomNavItem.ProfileNav.route) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
-                }
-                launchSingleTop = true
-                restoreState = true
-            }
-        }
-    }
-
     Scaffold(
         bottomBar = {
             BottomNavigation(backgroundColor = Color.White) {
@@ -72,12 +58,20 @@ fun AppNavigation(
                             if (screen == BottomNavItem.ProfileNav && authState !is AuthState.Authenticated) {
                                 navController.navigate("login")
                             } else {
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+                                // 如果当前在登录页面，切换到其他标签时需要清除登录页面
+                                if (currentDestination?.route == "login") {
+                                    navController.navigate(screen.route) {
+                                        popUpTo("login") { inclusive = true }
+                                        launchSingleTop = true
                                     }
-                                    launchSingleTop = true
-                                    restoreState = true
+                                } else {
+                                    navController.navigate(screen.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 }
                             }
                         }
