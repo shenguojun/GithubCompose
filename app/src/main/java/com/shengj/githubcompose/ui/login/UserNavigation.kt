@@ -1,4 +1,4 @@
-package com.shengj.githubcompose
+package com.shengj.githubcompose.ui.login
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,14 +13,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.shengj.githubcompose.ui.login.AuthState
-import com.shengj.githubcompose.ui.login.AuthViewModel
-import com.shengj.githubcompose.ui.login.LoginScreen
 import com.shengj.githubcompose.ui.profile.ProfileScreen
 import com.shengj.githubcompose.ui.repositories.RepositoriesScreen
 
 @Composable
-fun AppNavigation(
+fun UserNavigation(
     // Obtain AuthViewModel instance (Hilt, Koin, or passed down)
     authViewModel: AuthViewModel = hiltViewModel()
 ) {

@@ -88,6 +88,20 @@ class GithubRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO) // Run network call on IO thread
 
+    suspend fun searchPopularRepos(page: Int = 1, perPage: Int = 20): Flow<Result<List<Repo>>> = flow {
+        try {
+            val response =
+                apiService.searchRepositories(query = "stars:>1", sort = "stars", order = "desc", page = page, perPage = perPage)
+            if (response.isSuccessful && response.body() != null) {
+                emit(Result.success(response.body()!!.items))
+            } else {
+                emit(Result.failure(Exception("API Error: ${response.code()} ${response.message()}")))
+            }
+        } catch (e: Exception) {
+            emit(Result.failure(e)) // Network error etc.
+        }
+    }.flowOn(Dispatchers.IO)
+
     suspend fun getUserRepos(page: Int = 1, perPage: Int = 20): Flow<Result<List<Repo>>> = flow {
         val token = getToken()
         if (token == null) {

@@ -23,7 +23,9 @@ interface GithubApiService {
     suspend fun searchRepositories(
         @Query("q") query: String,
         @Query("sort") sort: String = "stars",
-        @Query("order") order: String = "desc"
+        @Query("order") order: String = "desc",
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 20
     ): Response<SearchResponse> // Define SearchResponse data class
 
     // Example: Get User Repos (Requires Auth)
