@@ -10,7 +10,9 @@ import androidx.compose.material.FilterChip
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.shengj.githubcompose.R
 
 /**
  * A composable function that displays a horizontal list of programming languages
@@ -50,7 +52,7 @@ fun LanguageFilter(
                 onClick = { onLanguageSelected(null) },
                 modifier = Modifier.padding(vertical = 4.dp)
             ) {
-                Text("All")
+                Text(stringResource(id = R.string.language_filter_all))
             }
         }
         items(languages) { language ->

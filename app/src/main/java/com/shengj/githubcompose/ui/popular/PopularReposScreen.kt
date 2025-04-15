@@ -21,11 +21,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.shengj.githubcompose.R
 import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.profile.RepositoryCard
@@ -78,7 +80,7 @@ fun PopularReposScreen(
                 }
                 uiState.error != null && uiState.popularRepos.isEmpty() -> {
                     ErrorRetry(
-                        message = "Failed to load: ${uiState.error}",
+                        message = stringResource(R.string.error_load_failed, uiState.error ?: ""),
                         onRetry = { viewModel.refreshPopularRepos() }
                     )
                 }
@@ -115,7 +117,7 @@ fun PopularReposScreen(
                 Snackbar(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
                 ) {
-                    Text(text = "Failed to load: ${uiState.error}")
+                    Text(text = stringResource(R.string.error_load_failed, uiState.error ?: ""))
                 }
             }
         }

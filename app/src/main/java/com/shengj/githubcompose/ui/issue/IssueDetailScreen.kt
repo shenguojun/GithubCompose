@@ -39,10 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
+import com.shengj.githubcompose.R
 import com.shengj.githubcompose.data.model.Issue
 import com.shengj.githubcompose.ui.components.ErrorRetry
 
@@ -77,7 +79,7 @@ fun IssueDetailScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        text = "$owner / $repoName #$issueNumber",
+                        text = stringResource(R.string.issue_detail_title, owner, repoName, issueNumber),
                         color = Color.Black,
                         style = MaterialTheme.typography.subtitle1
                     )
@@ -88,7 +90,7 @@ fun IssueDetailScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back", // English description
+                            contentDescription = stringResource(R.string.action_back),
                             tint = Color.Black
                         )
                     }
@@ -98,7 +100,7 @@ fun IssueDetailScreen(
                     IconButton(onClick = { /* TODO: Implement Share */ }) {
                         Icon(
                             imageVector = Icons.Default.Share,
-                            contentDescription = "Share", // English description
+                            contentDescription = stringResource(R.string.action_share), // English description
                             tint = Color.Black
                         )
                     }
@@ -106,7 +108,7 @@ fun IssueDetailScreen(
                     IconButton(onClick = { /* TODO: Implement More Options */ }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "More Options", // English description
+                            contentDescription = stringResource(R.string.action_more_options), // English description
                             tint = Color.Black
                         )
                     }
@@ -125,7 +127,7 @@ fun IssueDetailScreen(
                 }
                 uiState.error != null -> {
                     ErrorRetry(
-                        message = uiState.error ?: "Unknown error", // English text
+                        message = uiState.error ?: stringResource(R.string.error_issue_detail_load_failed_default), 
                         onRetry = { viewModel.loadIssueDetail(owner, repoName, issueNumber) }
                     )
                 }
@@ -160,7 +162,7 @@ private fun IssueDetailContent(issue: Issue) {
         
         // Status label (Open/Closed)
         val statusColor = if (issue.state.equals("open", ignoreCase = true)) Color(0xFF2EA44F) else Color.Gray
-        val statusText = if (issue.state.equals("open", ignoreCase = true)) "Open" else "Closed"
+        val statusText = if (issue.state.equals("open", ignoreCase = true)) stringResource(R.string.issue_status_open) else stringResource(R.string.issue_status_closed)
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
@@ -182,7 +184,7 @@ private fun IssueDetailContent(issue: Issue) {
         ) {
             Image(
                 painter = rememberAsyncImagePainter(issue.user.avatarUrl),
-                contentDescription = "${issue.user.login}'s avatar", // English description
+                contentDescription = stringResource(R.string.profile_avatar_description, issue.user.login),
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape),
@@ -199,7 +201,7 @@ private fun IssueDetailContent(issue: Issue) {
                 )
                 Text(
                     // TODO: Format this date/time properly (e.g., using java.time or a library)
-                    text = "opened on ${issue.createdAt}", // Use createdAt, needs formatting
+                    text = stringResource(R.string.issue_opened_on, issue.createdAt /* Replace with formattedDate */),
                     style = MaterialTheme.typography.caption,
                     color = Color.Gray
                 )
@@ -226,7 +228,7 @@ private fun IssueDetailContent(issue: Issue) {
         ) {
             Icon(
                 imageVector = Icons.Default.EmojiEmotions,
-                contentDescription = "Add Reaction", // English description
+                contentDescription = stringResource(R.string.issue_add_reaction),
                 tint = Color.Gray,
                 modifier = Modifier.size(20.dp)
             )
@@ -241,7 +243,7 @@ private fun IssueDetailContent(issue: Issue) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Sub-issues", // English text
+                text = stringResource(R.string.issue_sub_issues_title),
                 style = MaterialTheme.typography.subtitle1,
                 fontWeight = FontWeight.Medium
             )
@@ -249,7 +251,7 @@ private fun IssueDetailContent(issue: Issue) {
             IconButton(onClick = { /* TODO: Add sub-issue */ }) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add Sub-issue", // English description
+                    contentDescription = stringResource(R.string.issue_add_sub_issue),
                     tint = MaterialTheme.colors.primary
                 )
             }

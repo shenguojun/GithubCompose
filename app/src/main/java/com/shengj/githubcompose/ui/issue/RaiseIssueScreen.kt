@@ -26,8 +26,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.shengj.githubcompose.R
 
 /**
  * Composable function for the screen used to create a new issue.
@@ -72,10 +74,10 @@ fun RaiseIssueScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text("Create Issue") },
+                title = { Text(stringResource(id = R.string.issue_create_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
@@ -106,7 +108,7 @@ fun RaiseIssueScreen(
                         ) {
                             Icon(
                                 Icons.Filled.Send,
-                                contentDescription = "Submit",
+                                contentDescription = stringResource(id = R.string.action_submit),
                                 tint = if (title.isNotBlank() && !uiState.isLoading)
                                     MaterialTheme.colors.primary
                                 else
@@ -127,7 +129,7 @@ fun RaiseIssueScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title") },
+                label = { Text(stringResource(R.string.issue_title_label)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
@@ -138,7 +140,7 @@ fun RaiseIssueScreen(
             OutlinedTextField(
                 value = body,
                 onValueChange = { body = it },
-                label = { Text("Comment (Optional)") },
+                label = { Text(stringResource(R.string.issue_comment_optional_label)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),

@@ -24,11 +24,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.shengj.githubcompose.R
 import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.components.LanguageFilter
 import com.shengj.githubcompose.ui.components.RepoItem
@@ -114,8 +116,9 @@ fun SearchScreen(
                         }
                         uiState.error != null && uiState.repos.isEmpty() -> {
                             ErrorRetry(
-                                message = "Search failed: ${uiState.error}",
-                                onRetry = { viewModel.searchRepos() }
+                                message = stringResource(R.string.error_search_failed, uiState.error ?: ""),
+                                onRetry = { viewModel.searchRepos() },
+                                modifier = Modifier.align(Alignment.Center)
                             )
                         }
                         else -> {
@@ -162,7 +165,7 @@ fun SearchScreen(
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
             ) {
-                Text(text = "Load failed: ${uiState.error}")
+                Text(text = stringResource(R.string.error_load_failed, uiState.error ?: stringResource(R.string.error_unknown)))
             }
         }
     }

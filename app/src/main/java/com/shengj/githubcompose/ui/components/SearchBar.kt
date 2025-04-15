@@ -14,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import com.shengj.githubcompose.R
 
 /**
  * A composable function that provides a styled search input field.
@@ -38,8 +40,8 @@ fun SearchBar(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier.fillMaxWidth(),
-        placeholder = { Text("Search repositories") },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search Icon") },
+        placeholder = { Text(stringResource(id = R.string.search_bar_placeholder)) },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(id = R.string.search_bar_icon_description)) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(

@@ -21,11 +21,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.shengj.githubcompose.R
 import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.profile.RepositoryCard
@@ -82,8 +84,9 @@ fun RepositoriesScreen(
                 }
                 uiState.error != null && uiState.repositories.isEmpty() -> {
                     ErrorRetry(
-                        message = "Failed to load: ${uiState.error}",
-                        onRetry = { viewModel.refresh() }
+                        message = stringResource(R.string.error_load_failed, uiState.error ?: ""),
+                        onRetry = { viewModel.refresh() },
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
                 else -> {
@@ -124,7 +127,7 @@ fun RepositoriesScreen(
                         .align(Alignment.BottomCenter)
                         .padding(16.dp)
                 ) {
-                    Text(text = "Failed to load: ${uiState.error}")
+                    Text(text = stringResource(R.string.error_load_failed, uiState.error ?: ""))
                 }
             }
         }

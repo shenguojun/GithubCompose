@@ -35,10 +35,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.shengj.githubcompose.R
 import com.shengj.githubcompose.data.model.Issue
 import com.shengj.githubcompose.ui.components.ErrorRetry
 
@@ -99,14 +101,14 @@ fun IssuesScreen(
         modifier = Modifier.statusBarsPadding(),
         topBar = {
             TopAppBar(
-                title = { Text("Issues", color = Color.Black) }, // English title
+                title = { Text(stringResource(id = R.string.issues_title), color = Color.Black) },
                 backgroundColor = Color.White,
                 elevation = 0.dp,
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back", // English description
+                            contentDescription = stringResource(id = R.string.action_back),
                             tint = Color.Black
                         )
                     }
@@ -129,14 +131,14 @@ fun IssuesScreen(
                     // Initial error state
                     uiState.error != null && uiState.issues.isEmpty() -> {
                         ErrorRetry(
-                            message = uiState.error ?: "An unknown error occurred", // English text
+                            message = uiState.error ?: stringResource(id = R.string.error_unknown),
                             onRetry = { viewModel.loadIssues(owner, repoName) }
                         )
                     }
                     // Empty state (loaded, but no issues)
                     uiState.issues.isEmpty() && !uiState.isLoading && !uiState.isRefreshing -> {
                         Text(
-                            text = "No issues found", // English text
+                            text = stringResource(id = R.string.issues_none_found),
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .padding(16.dp)
@@ -180,7 +182,7 @@ fun IssuesScreen(
                                     .align(Alignment.BottomCenter)
                                     .padding(16.dp)
                             ) {
-                                Text(text = "Error: ${uiState.error}") // Add English prefix
+                                Text(text = stringResource(id = R.string.error_prefix_detail, uiState.error ?: ""))
                             }
                         }
                     }
@@ -218,7 +220,7 @@ fun IssueItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "#${issue.number} opened by ${issue.user.login}",
+                text = stringResource(id = R.string.issue_item_subtitle, issue.number, issue.user.login),
                 style = MaterialTheme.typography.caption,
                 color = Color.Gray
             )

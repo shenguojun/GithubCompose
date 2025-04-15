@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.shengj.githubcompose.R
 import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.User
 import com.shengj.githubcompose.ui.components.ErrorRetry
@@ -81,7 +83,7 @@ fun ProfileScreen(
             }
             uiState.error != null -> {
                 ErrorRetry(
-                    message = "Failed to load profile: ${uiState.error}",
+                    message = stringResource(id = R.string.error_profile_load_failed, uiState.error ?: ""),
                     onRetry = { profileViewModel.loadUserProfile() }
                 )
             }
@@ -121,7 +123,7 @@ fun UserProfileContent(
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Image(
                 painter = rememberAsyncImagePainter(user.avatarUrl),
-                contentDescription = "${user.login} avatar",
+                contentDescription = stringResource(id = R.string.profile_avatar_description, user.login),
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape),
@@ -133,7 +135,7 @@ fun UserProfileContent(
                 Text(text = user.login, fontSize = 16.sp, color = Color.Gray)
             }
             TextButton(onClick = onLogout) {
-                Text("Logout")
+                Text(stringResource(id = R.string.profile_logout_button))
              }
         }
 
@@ -153,7 +155,9 @@ fun UserProfileContent(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Followers / Following
-        InfoRow(icon = Icons.Default.People, text = "${user.followers ?: 0} followers · ${user.following ?: 0} following")
+        val followers = user.followers ?: 0
+        val following = user.following ?: 0
+        InfoRow(icon = Icons.Default.People, text = stringResource(id = R.string.profile_followers_following, followers, following))
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -189,19 +193,19 @@ fun RepositorySection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Repositories",
+                text = stringResource(id = R.string.profile_repositories_title),
                 style = MaterialTheme.typography.h6,
                 fontWeight = FontWeight.Bold
             )
             TextButton(onClick = onViewAll) {
-                Text("View All")
+                Text(stringResource(id = R.string.profile_view_all_button))
             }
         }
 
         // Pinned Repositories
         if (uiState.pinnedRepos.isNotEmpty()) {
             Text(
-                text = "Pinned",
+                text = stringResource(id = R.string.profile_pinned_title),
                 style = MaterialTheme.typography.subtitle1,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -214,7 +218,7 @@ fun RepositorySection(
                 }
             }
         } else if (!uiState.isLoading) {
-            Text("No pinned repositories", modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
+            Text(stringResource(id = R.string.profile_no_pinned_repos), modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
         }
     }
 }
@@ -266,7 +270,7 @@ fun RepositoryCard(
                 modifier = Modifier.padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Star, contentDescription = "Stars", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Star, contentDescription = stringResource(id = R.string.repo_item_stars_description), tint = Color.Gray, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = "${repo.stargazersCount}", color = Color.Gray)
                 

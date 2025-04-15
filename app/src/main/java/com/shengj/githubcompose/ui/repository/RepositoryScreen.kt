@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
@@ -54,6 +55,7 @@ import com.mikepenz.markdown.model.DefaultMarkdownColors
 import com.mikepenz.markdown.model.DefaultMarkdownTypography
 import com.mikepenz.markdown.model.MarkdownColors
 import com.mikepenz.markdown.model.MarkdownTypography
+import com.shengj.githubcompose.R
 import com.shengj.githubcompose.ui.components.ErrorRetry
 import java.nio.charset.Charset
 
@@ -95,7 +97,7 @@ fun RepositoryScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back", // English content description
+                            contentDescription = stringResource(id = R.string.action_back),
                             tint = Color.Black
                         )
                     }
@@ -105,13 +107,13 @@ fun RepositoryScreen(
                     TextButton(
                         onClick = { onNavigateToIssues(owner, repoName) }
                     ) {
-                        Text("Issues", color = MaterialTheme.colors.primary) // English text
+                        Text(stringResource(id = R.string.repository_issues_button), color = MaterialTheme.colors.primary)
                     }
                     // Action to navigate to the screen for creating a new issue
                     TextButton(
                         onClick = { onNavigateToRaiseIssue(owner, repoName) }
                     ) {
-                        Text("New Issue", color = MaterialTheme.colors.primary) // English text
+                        Text(stringResource(id = R.string.repository_new_issue_button), color = MaterialTheme.colors.primary)
                     }
                 }
             )
@@ -130,7 +132,7 @@ fun RepositoryScreen(
                 // Error state
                 uiState.error != null -> {
                     ErrorRetry(
-                        message = uiState.error ?: "An unknown error occurred", // Use English text
+                        message = uiState.error ?: stringResource(id = R.string.error_unknown),
                         onRetry = { viewModel.loadRepositoryDetails(owner, repoName) }
                     )
                 }
@@ -141,7 +143,7 @@ fun RepositoryScreen(
                 // Fallback state (should ideally not be reached if loading/error/success covers all)
                 else -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                         Text("Could not load repository information") // English text
+                         Text(stringResource(id = R.string.error_repo_load_failed))
                     }
                 }
             }
@@ -190,16 +192,16 @@ fun RepositoryContent(uiState: RepositoryUiState) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Star, contentDescription = "Stars", tint = Color.Gray, modifier = Modifier.size(16.dp))
+            Icon(Icons.Default.Star, contentDescription = stringResource(id = R.string.repo_item_stars_description), tint = Color.Gray, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
             Text(text = "${repo.stargazersCount}", color = Color.Gray, fontSize = 14.sp)
             Spacer(modifier = Modifier.width(16.dp))
-            Icon(Icons.Default.ForkRight, contentDescription = "Forks", tint = Color.Gray, modifier = Modifier.size(16.dp))
+            Icon(Icons.Default.ForkRight, contentDescription = stringResource(id = R.string.repo_item_forks_description), tint = Color.Gray, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
             Text(text = "${repo.forksCount}", color = Color.Gray, fontSize = 14.sp)
             repo.language?.let {
                 Spacer(modifier = Modifier.width(16.dp))
-                Icon(Icons.Default.Code, contentDescription = "Language", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Code, contentDescription = stringResource(id = R.string.repo_item_language_description), tint = Color.Gray, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = it, color = Color.Gray, fontSize = 14.sp)
             }
@@ -215,7 +217,7 @@ fun RepositoryContent(uiState: RepositoryUiState) {
                     onClick = { isMarkdownVisible = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Show README") // English text
+                    Text(stringResource(id = R.string.repository_show_readme))
                 }
             } else {
                 // Remember the potentially large decoded content to avoid re-processing on minor recompositions.
@@ -233,7 +235,7 @@ fun RepositoryContent(uiState: RepositoryUiState) {
             }
         } else if (uiState.readmeContent == null && !uiState.isLoading) {
             // Display message if README is confirmed not found (and not just loading)
-            Text("README file not found", color = Color.Gray) // English text
+            Text(stringResource(id = R.string.repository_readme_not_found), color = Color.Gray)
         }
     }
 }
