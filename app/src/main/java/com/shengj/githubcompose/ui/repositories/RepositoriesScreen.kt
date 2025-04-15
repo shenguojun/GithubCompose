@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Snackbar
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.profile.RepositoryCard
 
@@ -64,12 +64,9 @@ fun RepositoriesScreen(
                 )
             }
             uiState.error != null && uiState.repositories.isEmpty() -> {
-                Text(
-                    text = "错误: ${uiState.error}",
-                    color = MaterialTheme.colors.error,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(16.dp)
+                ErrorRetry(
+                    message = "加载失败: ${uiState.error}",
+                    onRetry = { viewModel.refresh() }
                 )
             }
             else -> {

@@ -25,7 +25,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.ForkRight
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
@@ -54,6 +53,7 @@ import com.mikepenz.markdown.model.DefaultMarkdownColors
 import com.mikepenz.markdown.model.DefaultMarkdownTypography
 import com.mikepenz.markdown.model.MarkdownColors
 import com.mikepenz.markdown.model.MarkdownTypography
+import com.shengj.githubcompose.ui.components.ErrorRetry
 import java.nio.charset.Charset
 
 @Composable
@@ -112,7 +112,10 @@ fun RepositoryScreen(
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 uiState.error != null -> {
-                    ErrorDisplay(message = uiState.error ?: "发生未知错误")
+                    ErrorRetry(
+                        message = uiState.error ?: "发生未知错误",
+                        onRetry = { viewModel.loadRepositoryDetails(owner, repoName) }
+                    )
                 }
                 uiState.repository != null -> {
                     RepositoryContent(uiState = uiState)
@@ -203,26 +206,6 @@ fun RepositoryContent(uiState: RepositoryUiState) {
         } else if (uiState.readmeContent == null && !uiState.isLoading) {
             Text("未找到 README 文件", color = Color.Gray)
         }
-    }
-}
-
-@Composable
-fun ErrorDisplay(message: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.ErrorOutline,
-            contentDescription = "Error",
-            tint = MaterialTheme.colors.error,
-            modifier = Modifier.size(48.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = message, color = MaterialTheme.colors.error, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
 }
 

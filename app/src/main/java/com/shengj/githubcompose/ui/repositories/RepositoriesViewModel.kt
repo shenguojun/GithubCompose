@@ -33,28 +33,31 @@ class RepositoriesViewModel @Inject constructor(
     }
 
     private fun loadRepositories(isLoadMore: Boolean = false) {
-        if (isLoadMore && (!uiState.value.hasMore || uiState.value.isLoadingMore)) {
+        if ((isLoadMore && (!uiState.value.hasMore || uiState.value.isLoadingMore)) || (!isLoadMore && uiState.value.isLoading)) {
             return
         }
 
         viewModelScope.launch {
-            if (isLoadMore) {
-                _uiState.value = _uiState.value.copy(isLoadingMore = true)
+            _uiState.value = if (isLoadMore) {
+                _uiState.value.copy(isLoadingMore = true)
+            } else {
+                _uiState.value.copy(isLoading = true, error = null)
             }
 
             repository.getUserRepos(
-                page = uiState.value.page,
+                page = if(isLoadMore) uiState.value.page else 1,
                 perPage = 20
             ).collect { result ->
                 result.onSuccess { repos ->
                     val currentRepos = if (isLoadMore) uiState.value.repositories else emptyList()
+                    val nextPage = if (isLoadMore) uiState.value.page + 1 else 2
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         isLoadingMore = false,
                         repositories = currentRepos + repos,
                         error = null,
                         hasMore = repos.size == 20,
-                        page = uiState.value.page + 1
+                        page = nextPage
                     )
                 }.onFailure { e ->
                     _uiState.value = _uiState.value.copy(
@@ -65,6 +68,10 @@ class RepositoriesViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun refresh() {
+        loadRepositories(isLoadMore = false)
     }
 
     fun loadMore() {

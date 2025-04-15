@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.shengj.githubcompose.data.model.Issue
+import com.shengj.githubcompose.ui.components.ErrorRetry
 
 @Composable
 fun IssuesScreen(
@@ -111,11 +112,9 @@ fun IssuesScreen(
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                     uiState.error != null && uiState.issues.isEmpty() -> {
-                        Text(
-                            text = uiState.error ?: "未知错误",
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .padding(16.dp)
+                        ErrorRetry(
+                            message = uiState.error ?: "发生未知错误",
+                            onRetry = { viewModel.loadIssues(owner, repoName) }
                         )
                     }
                     uiState.issues.isEmpty() -> {

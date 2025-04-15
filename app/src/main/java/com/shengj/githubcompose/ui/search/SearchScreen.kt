@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Snackbar
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.components.LanguageFilter
 import com.shengj.githubcompose.ui.components.RepoItem
 import com.shengj.githubcompose.ui.components.SearchBar
@@ -102,10 +102,9 @@ fun SearchScreen(
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
                         uiState.error != null && uiState.repos.isEmpty() -> {
-                            Text(
-                                text = "错误: ${uiState.error}",
-                                color = MaterialTheme.colors.error,
-                                modifier = Modifier.align(Alignment.Center)
+                            ErrorRetry(
+                                message = "搜索失败: ${uiState.error}",
+                                onRetry = { viewModel.searchRepos() }
                             )
                         }
                         else -> {

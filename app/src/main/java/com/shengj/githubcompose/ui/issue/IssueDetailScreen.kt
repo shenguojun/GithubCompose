@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.shengj.githubcompose.data.model.Issue
+import com.shengj.githubcompose.ui.components.ErrorRetry
 
 @Composable
 fun IssueDetailScreen(
@@ -110,11 +111,9 @@ fun IssueDetailScreen(
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 uiState.error != null -> {
-                    Text(
-                        text = uiState.error ?: "未知错误",
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(16.dp)
+                    ErrorRetry(
+                        message = uiState.error ?: "未知错误",
+                        onRetry = { viewModel.loadIssueDetail(owner, repoName, issueNumber) }
                     )
                 }
                 uiState.issue != null -> {

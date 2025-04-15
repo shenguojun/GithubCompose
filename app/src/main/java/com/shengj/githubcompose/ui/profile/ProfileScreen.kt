@@ -51,6 +51,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.User
+import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.login.AuthViewModel
 import com.shengj.githubcompose.ui.navigation.AppScreen
 
@@ -71,12 +72,9 @@ fun ProfileScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
             uiState.error != null -> {
-                Text(
-                    text = "Error: ${uiState.error}",
-                    color = MaterialTheme.colors.error,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(16.dp)
+                ErrorRetry(
+                    message = "加载失败: ${uiState.error}",
+                    onRetry = { profileViewModel.loadUserProfile() }
                 )
             }
             uiState.user != null -> {
