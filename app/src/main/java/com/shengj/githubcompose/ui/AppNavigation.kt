@@ -8,6 +8,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -40,73 +41,90 @@ fun AppNavigation(
         BottomNavItem.ProfileNav
     )
 
-    // 根据认证状态决定显示内容
-    when (authState) {
-        is AuthState.Authenticated -> {
-            Scaffold(
-                bottomBar = {
-                    BottomNavigation(backgroundColor = Color.White) {
-                        val navBackStackEntry by navController.currentBackStackEntryAsState()
-                        val currentDestination = navBackStackEntry?.destination
-
-                        items.forEach { screen ->
-                            BottomNavigationItem(
-                                icon = { Icon(screen.icon, contentDescription = screen.label) },
-                                label = { Text(screen.label) },
-                                selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                                selectedContentColor = MaterialTheme.colors.primary,
-                                unselectedContentColor = Color.Gray,
-                                onClick = {
-                                    navController.navigate(screen.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
-                            )
-                        }
-                    }
+    // 监听认证状态变化，登录成功后导航到 Profile 页面
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Authenticated) {
+            navController.navigate(BottomNavItem.ProfileNav.route) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
                 }
-            ) { innerPadding ->
-                NavHost(
-                    navController = navController,
-                    startDestination = BottomNavItem.Popular.route,
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    composable(BottomNavItem.Popular.route) {
-                        PopularReposScreen(navController = navController)
-                    }
-                    composable(BottomNavItem.Search.route) {
-                        Text("Search Screen Placeholder")
-                    }
-                    composable(BottomNavItem.ProfileNav.route) {
-                        ProfileScreen(
-                            navController = navController,
-                            authViewModel = authViewModel
-                        )
-                    }
-                    composable(
-                        route = "repository/{owner}/{repoName}",
-                        arguments = listOf(
-                            navArgument("owner") { type = NavType.StringType },
-                            navArgument("repoName") { type = NavType.StringType }
-                        )
-                    ) { backStackEntry ->
-                        val owner = backStackEntry.arguments?.getString("owner") ?: ""
-                        val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
-                        RepositoryScreen(
-                            owner = owner,
-                            repoName = repoName,
-                            onNavigateBack = { navController.navigateUp() }
-                        )
-                    }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    }
+
+    Scaffold(
+        bottomBar = {
+            BottomNavigation(backgroundColor = Color.White) {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+
+                items.forEach { screen ->
+                    BottomNavigationItem(
+                        icon = { Icon(screen.icon, contentDescription = screen.label) },
+                        label = { Text(screen.label) },
+                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        selectedContentColor = MaterialTheme.colors.primary,
+                        unselectedContentColor = Color.Gray,
+                        onClick = {
+                            // 如果点击的是 Profile 且未登录，则跳转到登录页面
+                            if (screen == BottomNavItem.ProfileNav && authState !is AuthState.Authenticated) {
+                                navController.navigate("login")
+                            } else {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }
-        else -> {
-            LoginScreen()
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = BottomNavItem.Popular.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(BottomNavItem.Popular.route) {
+                PopularReposScreen(navController = navController)
+            }
+            composable(BottomNavItem.Search.route) {
+                Text("Search Screen Placeholder")
+            }
+            composable(BottomNavItem.ProfileNav.route) {
+                if (authState is AuthState.Authenticated) {
+                    ProfileScreen(
+                        navController = navController,
+                        authViewModel = authViewModel
+                    )
+                } else {
+                    LoginScreen()
+                }
+            }
+            composable("login") {
+                LoginScreen()
+            }
+            composable(
+                route = "repository/{owner}/{repoName}",
+                arguments = listOf(
+                    navArgument("owner") { type = NavType.StringType },
+                    navArgument("repoName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val owner = backStackEntry.arguments?.getString("owner") ?: ""
+                val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
+                RepositoryScreen(
+                    owner = owner,
+                    repoName = repoName,
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
         }
     }
 } 
