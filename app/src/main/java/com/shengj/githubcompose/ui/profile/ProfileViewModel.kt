@@ -3,6 +3,7 @@ package com.shengj.githubcompose.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shengj.githubcompose.data.GithubRepository
+import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import javax.inject.Inject
 data class ProfileUiState(
     val isLoading: Boolean = false,
     val user: User? = null,
+    val pinnedRepos: List<Repo> = emptyList(),
     val error: String? = null
 )
 
@@ -40,8 +42,26 @@ class ProfileViewModel @Inject constructor(
                 .collect { result ->
                     result.onSuccess { user ->
                         _uiState.value = ProfileUiState(user = user)
+                        // Load pinned repos after getting user info
+                        loadPinnedRepos(user.login)
                     }.onFailure { e ->
                         _uiState.value = ProfileUiState(error = e.message ?: "Failed to load profile")
+                    }
+                }
+        }
+    }
+
+    private fun loadPinnedRepos(username: String) {
+        viewModelScope.launch {
+            repository.getPinnedRepos(username)
+                .catch { e -> 
+                    _uiState.value = _uiState.value.copy(error = e.message)
+                }
+                .collect { result ->
+                    result.onSuccess { repos ->
+                        _uiState.value = _uiState.value.copy(pinnedRepos = repos)
+                    }.onFailure { e ->
+                        _uiState.value = _uiState.value.copy(error = e.message)
                     }
                 }
         }

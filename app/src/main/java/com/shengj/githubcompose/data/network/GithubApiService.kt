@@ -59,4 +59,10 @@ interface GithubApiService {
     @GET("user")
     suspend fun getCurrentUser(): Response<User> // Assuming User data class exists
 
+    @GET("users/{username}/repos")
+    suspend fun getPinnedRepos(
+        @Path("username") username: String,
+        @Query("sort") sort: String = "pushed",
+        @Query("per_page") perPage: Int = 6
+    ): Response<List<Repo>>
 }

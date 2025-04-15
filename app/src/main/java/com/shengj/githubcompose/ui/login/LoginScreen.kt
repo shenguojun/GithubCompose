@@ -11,10 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.shengj.githubcompose.R
 
 // GitHub OAuth URL and Client ID
@@ -38,6 +40,15 @@ fun LoginScreen(
     // .appendQueryParameter("scope", "repo,user")
     // .appendQueryParameter("state", "YOUR_RANDOM_STATE_STRING")
     // .appendQueryParameter("redirect_uri", "YOUR_CALLBACK_SCHEME://callback")
+
+    // 设置状态栏颜色和图标颜色
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setStatusBarColor(
+            color = Color.Black,
+            darkIcons = false // 使用白色图标
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -70,7 +81,7 @@ fun LoginScreen(
                 onClick = { onLoginClick(context, authUrl) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White, // Button background white
+                    backgroundColor = Color.White, // Button background white
                     contentColor = Color.Black // Text color black
                 )
             ) {

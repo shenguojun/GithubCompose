@@ -136,6 +136,18 @@ class GithubRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
+    suspend fun getPinnedRepos(username: String): Flow<Result<List<Repo>>> = flow {
+        try {
+            val response = apiService.getPinnedRepos(username)
+            if (response.isSuccessful && response.body() != null) {
+                emit(Result.success(response.body()!!))
+            } else {
+                emit(Result.failure(Exception("API Error: ${response.code()} ${response.message()}")))
+            }
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }.flowOn(Dispatchers.IO)
 
     // --- Auth Token Management ---
     fun saveAuthToken(token: String) { DataStoreHelper.saveToken(token) }

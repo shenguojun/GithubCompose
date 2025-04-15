@@ -1,18 +1,22 @@
 package com.shengj.githubcompose.ui.profile
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -20,14 +24,17 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TagFaces
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,33 +46,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
+import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.User
 import com.shengj.githubcompose.ui.login.auth.AuthViewModel
 
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel() // Inject AuthViewModel for logout
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val uiState by profileViewModel.uiState.collectAsState()
 
     Scaffold(
+        modifier = Modifier.statusBarsPadding(),
         topBar = {
             TopAppBar(
-                title = { Text("Profile") },
-                // Add logout button or other actions if needed
+                title = { 
+                    Text(
+                        "Profile",
+                        color = Color.Black
+                    ) 
+                },
+                backgroundColor = Color.White,
+                elevation = 0.dp,
                 actions = {
                     IconButton(onClick = { authViewModel.logout() }) {
-                        Icon(Icons.Default.Logout, contentDescription = "Logout")
+                        Icon(
+                            Icons.Default.Logout,
+                            contentDescription = "Logout",
+                            tint = Color.Black
+                        )
                     }
-                    // Add other icons like settings, share from the image if desired
-                    // IconButton(onClick = { /* TODO */ }) { Icon(Icons.Default.Share, "Share")}
-                    // IconButton(onClick = { /* TODO */ }) { Icon(Icons.Default.Settings, "Settings")}
                 }
             )
         }
@@ -89,7 +106,7 @@ fun ProfileScreen(
                     )
                 }
                 uiState.user != null -> {
-                    UserProfileContent(user = uiState.user!!)
+                    UserProfileContent(uiState = uiState)
                 }
             }
         }
@@ -97,11 +114,12 @@ fun ProfileScreen(
 }
 
 @Composable
-fun UserProfileContent(user: User) {
+fun UserProfileContent(uiState: ProfileUiState) {
+    val user = uiState.user!!
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()) // Make content scrollable
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         // Header section (Avatar, Name, Username)
@@ -123,11 +141,10 @@ fun UserProfileContent(user: User) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Bio or Status (Mimicking "Happy codding!")
-        // Replace with actual user.bio if available and desired
-        InfoRow(icon = Icons.Default.TagFaces, text = user.bio ?: "No bio provided")
+        // Bio or Status
+        user.bio?.let { InfoRow(icon = Icons.Default.TagFaces, text = it) }
 
-        Divider(modifier = Modifier.padding(vertical = 8.dp)) // Separator
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         // Other details like Company, Location, Blog, Email
         user.company?.let { InfoRow(icon = Icons.Default.Business, text = it) }
@@ -138,17 +155,124 @@ fun UserProfileContent(user: User) {
         Spacer(modifier = Modifier.height(8.dp))
 
         // Followers / Following
-        // The API might return followers_url/following_url, or counts directly (user.followers, user.following)
         InfoRow(icon = Icons.Default.People, text = "${user.followers ?: 0} followers · ${user.following ?: 0} following")
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // TODO: Add sections for Repositories, Organizations, Stars etc. if needed
-        // This would likely involve further API calls and navigation
+        // Repository Section
+        RepositorySection(uiState = uiState)
+    }
+}
 
-        // Placeholder for achievements/badges seen in the image
-        // Text("Achievements / Badges Placeholder")
+@Composable
+fun RepositorySection(uiState: ProfileUiState) {
+    Column {
+        // Repository Header
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Repositories",
+                style = MaterialTheme.typography.h6,
+                fontWeight = FontWeight.Bold
+            )
+            TextButton(onClick = { /* TODO: Navigate to repositories list */ }) {
+                Text("View All")
+            }
+        }
 
+        // Pinned Repositories
+        if (uiState.pinnedRepos.isNotEmpty()) {
+            Text(
+                text = "Pinned",
+                style = MaterialTheme.typography.subtitle1,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                uiState.pinnedRepos.forEach { repo ->
+                    RepositoryCard(repo = repo)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RepositoryCard(repo: Repo) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                text = repo.name,
+                style = MaterialTheme.typography.subtitle1,
+                fontWeight = FontWeight.Bold
+            )
+            
+            repo.description?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.body2,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+            
+            Row(
+                modifier = Modifier.padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repo.language?.let {
+                    Icon(
+                        imageVector = Icons.Default.Circle,
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = getLanguageColor(it)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.caption
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+                
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = Color.Gray
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "${repo.stargazersCount}",
+                    style = MaterialTheme.typography.caption
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun getLanguageColor(language: String): Color {
+    return when (language.lowercase()) {
+        "kotlin" -> Color(0xFF7F52FF)
+        "java" -> Color(0xFFB07219)
+        "python" -> Color(0xFF3572A5)
+        "javascript" -> Color(0xFFF1E05A)
+        else -> Color.Gray
     }
 }
 
@@ -164,8 +288,6 @@ fun InfoRow(icon: ImageVector, text: String) {
     }
 }
 
-
-// Preview for UserProfileContent (using dummy data)
 @Preview(showBackground = true)
 @Composable
 fun UserProfileContentPreview() {
@@ -173,19 +295,40 @@ fun UserProfileContentPreview() {
     val dummyUser = User(
         login = "shenguojun",
         id = 12345,
-        avatarUrl = "https://avatars.githubusercontent.com/u/your_user_id?v=4", // Replace with a valid URL for preview
-        name = "Lawrence/中国骏", // Add fields based on your User data class
+        avatarUrl = "https://avatars.githubusercontent.com/u/your_user_id?v=4",
+        name = "Lawrence/中国骏",
         company = "Netease Youdao",
         location = "GuangZhou, China",
         blog = "https://shenguojun.github.io/",
         email = "junguoshen@outlook.com",
         bio = "Happy codding!",
-        followers = 26, // Add fields if they exist in your User model
-        following = 22,// Add fields if they exist in your User model
-        // Add other fields your User data class might have (like html_url, etc.)
-        htmlUrl = "" // Example of another potential field
+        followers = 26,
+        following = 22,
+        htmlUrl = ""
     )
+    
+    // Create dummy UI state with some pinned repos
+    val dummyPinnedRepos = listOf(
+        Repo(
+            id = 1,
+            name = "GithubCompose",
+            fullName = "shenguojun/GithubCompose",
+            owner = dummyUser,
+            description = "A GitHub client built with Jetpack Compose",
+            stargazersCount = 45,
+            language = "Kotlin",
+            htmlUrl = "https://github.com/shenguojun/GithubCompose"
+        )
+    )
+    
+    val dummyUiState = ProfileUiState(
+        isLoading = false,
+        user = dummyUser,
+        pinnedRepos = dummyPinnedRepos,
+        error = null
+    )
+    
     MaterialTheme {
-        UserProfileContent(user = dummyUser)
+        UserProfileContent(uiState = dummyUiState)
     }
 }
