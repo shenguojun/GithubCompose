@@ -46,6 +46,16 @@ import coil.compose.rememberAsyncImagePainter
 import com.shengj.githubcompose.data.model.Issue
 import com.shengj.githubcompose.ui.components.ErrorRetry
 
+/**
+ * Composable function for the Issue Detail screen.
+ * Displays the details of a specific issue, including title, status, author, and body.
+ *
+ * @param owner The repository owner.
+ * @param repoName The repository name.
+ * @param issueNumber The number of the issue to display.
+ * @param viewModel The [IssueDetailViewModel] providing UI state and loading logic.
+ * @param onNavigateBack Callback invoked when the back navigation action is triggered.
+ */
 @Composable
 fun IssueDetailScreen(
     owner: String,
@@ -57,6 +67,7 @@ fun IssueDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(owner, repoName, issueNumber) {
+        // Load issue details when parameters change
         viewModel.loadIssueDetail(owner, repoName, issueNumber)
     }
 
@@ -77,23 +88,25 @@ fun IssueDetailScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "返回",
+                            contentDescription = "Back", // English description
                             tint = Color.Black
                         )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: 实现分享功能 */ }) {
+                    // TODO: Implement Share functionality
+                    IconButton(onClick = { /* TODO: Implement Share */ }) {
                         Icon(
                             imageVector = Icons.Default.Share,
-                            contentDescription = "分享",
+                            contentDescription = "Share", // English description
                             tint = Color.Black
                         )
                     }
-                    IconButton(onClick = { /* TODO: 实现更多菜单 */ }) {
+                    // TODO: Implement More Options menu
+                    IconButton(onClick = { /* TODO: Implement More Options */ }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "更多",
+                            contentDescription = "More Options", // English description
                             tint = Color.Black
                         )
                     }
@@ -112,7 +125,7 @@ fun IssueDetailScreen(
                 }
                 uiState.error != null -> {
                     ErrorRetry(
-                        message = uiState.error ?: "未知错误",
+                        message = uiState.error ?: "Unknown error", // English text
                         onRetry = { viewModel.loadIssueDetail(owner, repoName, issueNumber) }
                     )
                 }
@@ -124,6 +137,11 @@ fun IssueDetailScreen(
     }
 }
 
+/**
+ * Composable function displaying the main content of the issue details.
+ *
+ * @param issue The [Issue] object containing the details to display.
+ */
 @Composable
 private fun IssueDetailContent(issue: Issue) {
     Column(
@@ -140,15 +158,17 @@ private fun IssueDetailContent(issue: Issue) {
         
         Spacer(modifier = Modifier.height(8.dp))
         
-        // 状态标签
+        // Status label (Open/Closed)
+        val statusColor = if (issue.state.equals("open", ignoreCase = true)) Color(0xFF2EA44F) else Color.Gray
+        val statusText = if (issue.state.equals("open", ignoreCase = true)) "Open" else "Closed"
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF2EA44F))
+                .background(statusColor)
                 .padding(horizontal = 12.dp, vertical = 4.dp)
         ) {
             Text(
-                text = "打开",
+                text = statusText, // Dynamic status text
                 color = Color.White,
                 style = MaterialTheme.typography.body2
             )
@@ -162,7 +182,7 @@ private fun IssueDetailContent(issue: Issue) {
         ) {
             Image(
                 painter = rememberAsyncImagePainter(issue.user.avatarUrl),
-                contentDescription = "用户头像",
+                contentDescription = "${issue.user.login}'s avatar", // English description
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape),
@@ -178,7 +198,8 @@ private fun IssueDetailContent(issue: Issue) {
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "现在",  // TODO: 格式化时间
+                    // TODO: Format this date/time properly (e.g., using java.time or a library)
+                    text = "opened on ${issue.createdAt}", // Use createdAt, needs formatting
                     style = MaterialTheme.typography.caption,
                     color = Color.Gray
                 )
@@ -199,13 +220,13 @@ private fun IssueDetailContent(issue: Issue) {
         
         // 表情回应按钮
         OutlinedButton(
-            onClick = { /* TODO: 实现表情回应 */ },
+            onClick = { /* TODO: Implement reactions */ },
             modifier = Modifier.height(36.dp),
             shape = RoundedCornerShape(18.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.EmojiEmotions,
-                contentDescription = "添加表情回应",
+                contentDescription = "Add Reaction", // English description
                 tint = Color.Gray,
                 modifier = Modifier.size(20.dp)
             )
@@ -220,14 +241,15 @@ private fun IssueDetailContent(issue: Issue) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "子问题",
+                text = "Sub-issues", // English text
                 style = MaterialTheme.typography.subtitle1,
                 fontWeight = FontWeight.Medium
             )
-            IconButton(onClick = { /* TODO: 添加子问题 */ }) {
+            // TODO: Implement adding sub-issues functionality
+            IconButton(onClick = { /* TODO: Add sub-issue */ }) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "添加子问题",
+                    contentDescription = "Add Sub-issue", // English description
                     tint = MaterialTheme.colors.primary
                 )
             }

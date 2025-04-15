@@ -23,6 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shengj.githubcompose.data.model.Repo
 
+/**
+ * A composable function that displays information about a single GitHub repository
+ * within a Card layout. Includes repository name, description, star count, and language.
+ *
+ * @param repo The [Repo] object containing the data to display.
+ * @param onClick The callback function to be invoked when the card is clicked.
+ * @param modifier Optional modifier for this composable.
+ */
 @Composable
 fun RepoItem(
     repo: Repo,
@@ -65,7 +73,7 @@ fun RepoItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = null,
+                        contentDescription = "Stars",
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))

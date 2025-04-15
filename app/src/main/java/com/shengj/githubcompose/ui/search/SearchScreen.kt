@@ -33,7 +33,16 @@ import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.components.LanguageFilter
 import com.shengj.githubcompose.ui.components.RepoItem
 import com.shengj.githubcompose.ui.components.SearchBar
+import com.shengj.githubcompose.ui.navigation.AppScreen
 
+/**
+ * Composable function for the Search screen.
+ * Allows users to search for GitHub repositories, filter by language,
+ * view results in a paginated list with pull-to-refresh and load-more functionality.
+ *
+ * @param navController The [NavController] used for navigating to repository details.
+ * @param viewModel The [SearchViewModel] instance providing the UI state and search logic.
+ */
 @Composable
 fun SearchScreen(
     navController: NavController,
@@ -43,7 +52,9 @@ fun SearchScreen(
     val listState = rememberLazyListState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading && !uiState.isLoadingMore)
 
-    // 计算是否需要加载更多
+    // Derived state to determine if more data should be loaded.
+    // True when the last visible item is within 5 items of the end,
+    // not currently loading, and the search query is not blank.
     val shouldLoadMore by remember {
         derivedStateOf {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
@@ -54,7 +65,7 @@ fun SearchScreen(
         }
     }
 
-    // 触发加载更多
+    // Effect to trigger loading more data when shouldLoadMore becomes true.
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore && !uiState.isLoadingMore && uiState.hasMore) {
             viewModel.loadMore()
@@ -103,7 +114,7 @@ fun SearchScreen(
                         }
                         uiState.error != null && uiState.repos.isEmpty() -> {
                             ErrorRetry(
-                                message = "搜索失败: ${uiState.error}",
+                                message = "Search failed: ${uiState.error}",
                                 onRetry = { viewModel.searchRepos() }
                             )
                         }
@@ -118,7 +129,7 @@ fun SearchScreen(
                                     RepoItem(
                                         repo = repo,
                                         onClick = {
-                                            navController.navigate("repository/${repo.owner.login}/${repo.name}")
+                                            navController.navigate(AppScreen.Repository.createRoute(repo.owner.login, repo.name))
                                         }
                                     )
                                 }
@@ -151,7 +162,7 @@ fun SearchScreen(
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
             ) {
-                Text(text = "加载失败: ${uiState.error}")
+                Text(text = "Load failed: ${uiState.error}")
             }
         }
     }

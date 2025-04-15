@@ -12,6 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/**
+ * A composable function that displays a horizontal list of programming languages
+ * as filter chips. Allows users to select a language or view all.
+ *
+ * @param selectedLanguage The currently selected language (null means "All").
+ * @param onLanguageSelected Callback invoked when a language chip (or "All") is clicked.
+ * @param modifier Optional modifier for this composable.
+ */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LanguageFilter(
@@ -42,7 +50,7 @@ fun LanguageFilter(
                 onClick = { onLanguageSelected(null) },
                 modifier = Modifier.padding(vertical = 4.dp)
             ) {
-                Text("全部")
+                Text("All")
             }
         }
         items(languages) { language ->

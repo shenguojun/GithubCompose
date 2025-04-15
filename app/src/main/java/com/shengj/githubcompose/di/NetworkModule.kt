@@ -12,11 +12,20 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+/**
+ * Hilt module that provides network-related dependencies.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     private const val BASE_URL = "https://api.github.com/"
 
+    /**
+     * Provides a singleton instance of [OkHttpClient].
+     *
+     * Includes an [HttpLoggingInterceptor] for logging network requests/responses
+     * and an [AuthorizationInterceptor] to add the necessary auth headers.
+     */
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
@@ -26,6 +35,11 @@ object NetworkModule {
             .build()
     }
 
+    /**
+     * Provides a singleton instance of [Retrofit].
+     *
+     * @param okHttpClient The [OkHttpClient] instance to use for network requests.
+     */
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
@@ -36,6 +50,11 @@ object NetworkModule {
             .build()
     }
 
+    /**
+     * Provides a singleton instance of [GithubApiService].
+     *
+     * @param retrofit The [Retrofit] instance used to create the service.
+     */
     @Provides
     @Singleton
     fun provideGithubApiService(retrofit: Retrofit): GithubApiService {

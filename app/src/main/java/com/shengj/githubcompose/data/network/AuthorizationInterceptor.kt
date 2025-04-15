@@ -3,14 +3,33 @@ package com.shengj.githubcompose.data.network
 import com.shengj.githubcompose.data.DataStoreHelper
 import okhttp3.Interceptor
 import okhttp3.Response
+import java.io.IOException
 
+/**
+ * An OkHttp Interceptor that adds the required `Accept` header and the
+ * `Authorization` header with the bearer token (if available) to GitHub API requests.
+ */
 class AuthorizationInterceptor : Interceptor {
+
+    /**
+     * Intercepts the outgoing request to add headers.
+     *
+     * Adds `Accept: application/vnd.github+json`.
+     * Adds `Authorization: token <token>` if a token is found in [DataStoreHelper].
+     *
+     * @param chain The interceptor chain.
+     * @return The response received after proceeding with the modified request.
+     * @throws IOException if the request could not be executed.
+     */
     override fun intercept(chain: Interceptor.Chain): Response {
-        val requestBuilder = chain.request().newBuilder()
-            .addHeader(name = "Accept", value = "application/vnd.github+json")
+        val originalRequest = chain.request()
+        val requestBuilder = originalRequest.newBuilder()
+            .header("Accept", "application/vnd.github+json") // Use .header() to overwrite if already present
+
         DataStoreHelper.getToken()?.let {
-            requestBuilder.addHeader(name = "Authorization", value = "token $it")
+            requestBuilder.header("Authorization", "token $it") // Use .header() for consistency
         }
+
         val request = requestBuilder.build()
         return chain.proceed(request)
     }

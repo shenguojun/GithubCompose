@@ -39,6 +39,14 @@ import com.shengj.githubcompose.ui.repositories.RepositoriesScreen
 import com.shengj.githubcompose.ui.repository.RepositoryScreen
 import com.shengj.githubcompose.ui.search.SearchScreen
 
+/**
+ * Sets up the main navigation structure of the application using Jetpack Compose Navigation.
+ *
+ * Includes a Scaffold with a BottomNavigation bar and a NavHost to manage transitions
+ * between different screens ([Composable] functions).
+ *
+ * @param authViewModel The [AuthViewModel] instance, obtained via Hilt, used to check authentication state.
+ */
 @Composable
 fun AppNavigation(
     authViewModel: AuthViewModel = hiltViewModel()
@@ -62,7 +70,7 @@ fun AppNavigation(
 
                 items.forEach { screen ->
                     BottomNavigationItem(
-                        icon = { Icon(screen.icon, contentDescription = null) },
+                        icon = { Icon(screen.icon, contentDescription = screen.label) },
                         label = { Text(screen.label) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         selectedContentColor = MaterialTheme.colors.primary,
@@ -99,13 +107,12 @@ fun AppNavigation(
                     SearchScreen(navController = navController)
                 }
                 composable(BottomNavItem.ProfileNav.route) {
-                    if (authState is AuthState.Authenticated) {
-                        ProfileScreen(
+                    when (authState) {
+                        is AuthState.Authenticated -> ProfileScreen(
                             navController = navController,
                             authViewModel = authViewModel
                         )
-                    } else {
-                        LoginScreen()
+                        else -> LoginScreen()
                     }
                 }
                 composable(AppScreen.Login.route) {
@@ -121,8 +128,8 @@ fun AppNavigation(
                         navArgument("repoName") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
-                    val owner = backStackEntry.arguments?.getString("owner") ?: ""
-                    val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
+                    val owner = backStackEntry.arguments?.getString("owner").orEmpty()
+                    val repoName = backStackEntry.arguments?.getString("repoName").orEmpty()
                     RepositoryScreen(
                         owner = owner,
                         repoName = repoName,
@@ -143,8 +150,8 @@ fun AppNavigation(
                         navArgument("repoName") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
-                    val owner = backStackEntry.arguments?.getString("owner") ?: ""
-                    val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
+                    val owner = backStackEntry.arguments?.getString("owner").orEmpty()
+                    val repoName = backStackEntry.arguments?.getString("repoName").orEmpty()
                     RaiseIssueScreen(
                         owner = owner,
                         repoName = repoName,
@@ -165,8 +172,8 @@ fun AppNavigation(
                         navArgument("issueNumber") { type = NavType.IntType }
                     )
                 ) { backStackEntry ->
-                    val owner = backStackEntry.arguments?.getString("owner") ?: ""
-                    val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
+                    val owner = backStackEntry.arguments?.getString("owner").orEmpty()
+                    val repoName = backStackEntry.arguments?.getString("repoName").orEmpty()
                     val issueNumber = backStackEntry.arguments?.getInt("issueNumber") ?: 0
                     IssueDetailScreen(
                         owner = owner,
@@ -183,8 +190,8 @@ fun AppNavigation(
                         navArgument("repoName") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
-                    val owner = backStackEntry.arguments?.getString("owner") ?: ""
-                    val repoName = backStackEntry.arguments?.getString("repoName") ?: ""
+                    val owner = backStackEntry.arguments?.getString("owner").orEmpty()
+                    val repoName = backStackEntry.arguments?.getString("repoName").orEmpty()
                     IssuesScreen(
                         owner = owner,
                         repoName = repoName,

@@ -55,6 +55,14 @@ import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.login.AuthViewModel
 import com.shengj.githubcompose.ui.navigation.AppScreen
 
+/**
+ * Composable function for the user Profile screen.
+ * Displays user information, allows logout, and shows pinned repositories.
+ *
+ * @param profileViewModel The [ProfileViewModel] providing user and repository data.
+ * @param authViewModel The [AuthViewModel] used for logout functionality.
+ * @param navController The [NavController] for navigating to other screens (e.g., All Repositories, Repository Detail).
+ */
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel(),
@@ -73,7 +81,7 @@ fun ProfileScreen(
             }
             uiState.error != null -> {
                 ErrorRetry(
-                    message = "加载失败: ${uiState.error}",
+                    message = "Failed to load profile: ${uiState.error}",
                     onRetry = { profileViewModel.loadUserProfile() }
                 )
             }
@@ -88,6 +96,14 @@ fun ProfileScreen(
     }
 }
 
+/**
+ * Composable function displaying the main content of the user profile,
+ * including header, bio, details, and repository section.
+ *
+ * @param uiState The current [ProfileUiState] containing user and repository data.
+ * @param navController The [NavController] for navigation actions.
+ * @param onLogout Callback invoked when the logout button is clicked.
+ */
 @Composable
 fun UserProfileContent(
     uiState: ProfileUiState,
@@ -116,8 +132,8 @@ fun UserProfileContent(
                 Text(text = user.name ?: user.login, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Text(text = user.login, fontSize = 16.sp, color = Color.Gray)
             }
-            TextButton(onClick = onLogout) { 
-                Text("登出")
+            TextButton(onClick = onLogout) {
+                Text("Logout")
              }
         }
 
@@ -150,6 +166,13 @@ fun UserProfileContent(
     }
 }
 
+/**
+ * Composable function displaying the Pinned Repositories section on the profile.
+ *
+ * @param uiState The current [ProfileUiState].
+ * @param navController The [NavController] for navigation.
+ * @param onViewAll Callback invoked when the "View All" button is clicked.
+ */
 @Composable
 fun RepositorySection(
     uiState: ProfileUiState,
@@ -166,19 +189,19 @@ fun RepositorySection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "仓库",
+                text = "Repositories",
                 style = MaterialTheme.typography.h6,
                 fontWeight = FontWeight.Bold
             )
             TextButton(onClick = onViewAll) {
-                Text("查看全部")
+                Text("View All")
             }
         }
 
         // Pinned Repositories
         if (uiState.pinnedRepos.isNotEmpty()) {
             Text(
-                text = "置顶",
+                text = "Pinned",
                 style = MaterialTheme.typography.subtitle1,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -191,11 +214,22 @@ fun RepositorySection(
                 }
             }
         } else if (!uiState.isLoading) {
-            Text("没有置顶仓库", modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
+            Text("No pinned repositories", modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
         }
     }
 }
 
+/**
+ * Composable function displaying a single repository as a Card.
+ * Used here for pinned repositories.
+ *
+ * Note: Defined locally within ProfileScreen.kt. Consider moving to ui/components
+ * and potentially merging with [com.shengj.githubcompose.ui.components.RepoItem]
+ * if the required style and information are similar enough.
+ *
+ * @param repo The [Repo] data to display.
+ * @param onClick Callback invoked when the card is clicked.
+ */
 @Composable
 fun RepositoryCard(
     repo: Repo,
@@ -248,10 +282,16 @@ fun RepositoryCard(
     }
 }
 
+/**
+ * A helper composable to display a row of information with an icon and text.
+ *
+ * @param icon The leading [ImageVector] icon.
+ * @param text The text content to display.
+ */
 @Composable
 fun InfoRow(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-        Icon(icon, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+        Icon(icon, contentDescription = text, tint = Color.Gray, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = text, style = MaterialTheme.typography.body1)
     }

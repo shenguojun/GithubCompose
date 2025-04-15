@@ -53,7 +53,7 @@ fun ErrorRetry(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = onRetry) {
-            Text("重试")
+            Text("Retry")
         }
     }
 } 

@@ -1,7 +1,8 @@
-package com.shengj.githubcompose.ui.login // 替换成你的包名
+package com.shengj.githubcompose.ui.login // Ensure this matches your package structure
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.Image
@@ -17,6 +18,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,28 +31,51 @@ import androidx.core.net.toUri
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.shengj.githubcompose.BuildConfig
 import com.shengj.githubcompose.R
+import java.util.UUID
 
-// GitHub OAuth URL and Client ID
-const val GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
-const val GITHUB_CLIENT_ID = BuildConfig.GITHUB_CLIENT_ID
+// GitHub OAuth Constants
+private const val GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
+private const val GITHUB_CLIENT_ID = BuildConfig.GITHUB_CLIENT_ID
+private const val REDIRECT_URI = "shengj://callback" // Must match AndroidManifest and GitHub App settings
+private const val OAUTH_SCOPE = "repo,user" // Request repo and user info scopes
 
+/**
+ * Composable function for the Login Screen.
+ * Displays the app logo and a button to initiate the GitHub OAuth login flow
+ * by launching a Chrome Custom Tab.
+ *
+ * @param onLoginClick Callback invoked when the login button is clicked.
+ *                     Takes the context and the constructed auth URL as parameters.
+ *                     Defaults to calling [launchCustomTab].
+ */
 @Composable
 fun LoginScreen(
-    onLoginClick: (Context, String) -> Unit = ::launchCustomTab // 默认启动 Custom Tab
+    onLoginClick: (Context, String, String) -> Unit = ::launchCustomTab // Pass context, url, state
 ) {
     val context = LocalContext.current
-    val authUrl = "$GITHUB_AUTH_URL?client_id=$GITHUB_CLIENT_ID"
-    // .appendQueryParameter("scope", "repo,user")
-    // .appendQueryParameter("state", "YOUR_RANDOM_STATE_STRING")
-    // .appendQueryParameter("redirect_uri", "YOUR_CALLBACK_SCHEME://callback")
+    // Generate a unique state parameter for CSRF protection
+    val state = remember { UUID.randomUUID().toString() }
+    // TODO: Store the 'state' variable securely (e.g., ViewModel, SharedPreferences)
+    //       to verify it upon receiving the OAuth callback.
 
-    // 设置状态栏颜色和图标颜色
+    val authUrl = "$GITHUB_AUTH_URL?client_id=$GITHUB_CLIENT_ID"
+        .toUri()
+        .buildUpon()
+        .appendQueryParameter("scope", OAUTH_SCOPE)
+        .appendQueryParameter("state", state)
+        .appendQueryParameter("redirect_uri", REDIRECT_URI)
+        .build()
+        .toString()
+
+    // Configure status bar appearance for this screen
     val systemUiController = rememberSystemUiController()
     SideEffect {
         systemUiController.setStatusBarColor(
             color = Color.White,
-            darkIcons = true // 使用黑色图标
+            darkIcons = true // Use dark icons on light status bar
         )
+        // Optional: Hide navigation bar if desired for a more immersive login screen
+        // systemUiController.isNavigationBarVisible = false
     }
 
     Column(
@@ -77,54 +102,74 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 32.dp), // Add some padding for the button area
+                .padding(horizontal = 16.dp, vertical = 32.dp), // Add padding
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = { onLoginClick(context, authUrl) },
+                onClick = { onLoginClick(context, authUrl, state) }, // Pass state
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.Black, // Button background black
-                    contentColor = Color.White // Text color white
+                    backgroundColor = Color.Black,
+                    contentColor = Color.White
                 )
             ) {
                 Text(
-                    text = "Login to GITHUB.COM",
-                    fontSize = 16.sp // Set font size
+                    text = "Login with GitHub", // Updated Button Text
+                    fontSize = 16.sp
                 )
             }
         }
     }
 }
 
-// Helper function to launch Chrome Custom Tab
-fun launchCustomTab(context: Context, url: String) {
+/**
+ * Launches the GitHub OAuth URL in a Chrome Custom Tab if available,
+ * otherwise falls back to opening in a standard browser.
+ *
+ * @param context The Android context.
+ * @param url The authorization URL to launch.
+ * @param state The generated state parameter (currently unused in this function, but passed for completeness).
+ */
+fun launchCustomTab(context: Context, url: String, state: String) {
     val uri = url.toUri()
-    val packageName = CustomTabsClient.getPackageName(context, null) // Pass null for default browser list
+    // Find a package that supports Custom Tabs
+    val packageName = CustomTabsClient.getPackageName(context, null)
+
     if (packageName == null) {
-        // Fallback: No CCT provider found. Open in standard browser or handle error.
+        // Fallback: No CCT provider found. Open in standard browser.
+        Log.w("LoginScreen", "No Custom Tabs provider found. Opening in standard browser.")
         try {
             val intent = Intent(Intent.ACTION_VIEW, uri)
             context.startActivity(intent)
         } catch (e: Exception) {
-            // Handle inability to launch any browser
-            println("Error launching URL: ${e.message}")
+            Log.e("LoginScreen", "Could not launch any browser for URL: $url", e)
+            // Optionally show a Toast or Snackbar to the user
         }
         return
     }
+
+    // CCT provider found, launch the Custom Tab
     val customTabsIntent = CustomTabsIntent.Builder()
         .setShowTitle(true)
+        // .setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary)) // Example: Customize color
         .build()
     customTabsIntent.intent.setPackage(packageName)
     try {
         customTabsIntent.launchUrl(context, uri)
     } catch (e: Exception) {
-        e.printStackTrace()
+        Log.e("LoginScreen", "Error launching Custom Tab for URL: $url", e)
+        // Fallback to standard browser if CCT launch fails unexpectedly
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            context.startActivity(intent)
+        } catch (e2: Exception) {
+            Log.e("LoginScreen", "Could not launch standard browser either for URL: $url", e2)
+        }
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF) // 预览背景设为白色
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF) // Preview with white background
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen(onLoginClick = { _, _ -> /* Do nothing in preview click */ })
+    LoginScreen(onLoginClick = { _, _, _ -> /* Do nothing in preview click */ })
 }

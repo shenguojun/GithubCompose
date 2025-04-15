@@ -29,6 +29,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+/**
+ * Composable function for the screen used to create a new issue.
+ * Provides input fields for the issue title and body, and handles submission.
+ *
+ * Note: Considers moving title, body, and error message state management into the ViewModel
+ * for better state hoisting and adherence to UDF patterns.
+ *
+ * @param owner The repository owner.
+ * @param repoName The repository name.
+ * @param onNavigateBack Callback invoked when the back navigation action is triggered.
+ * @param onIssueCreated Callback invoked with the new issue number upon successful creation.
+ * @param viewModel The [IssueViewModel] handling the creation logic.
+ */
 @Composable
 fun RaiseIssueScreen(
     owner: String,
@@ -44,7 +57,7 @@ fun RaiseIssueScreen(
     val scaffoldState = rememberScaffoldState()
     val uiState by viewModel.uiState.collectAsState()
 
-    // 显示错误消息
+    // Show error messages in a Snackbar
     LaunchedEffect(errorMessage) {
         if (errorMessage != null) {
             scaffoldState.snackbarHostState.showSnackbar(
@@ -59,10 +72,10 @@ fun RaiseIssueScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text("创建议题") },
+                title = { Text("Create Issue") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -93,7 +106,7 @@ fun RaiseIssueScreen(
                         ) {
                             Icon(
                                 Icons.Filled.Send,
-                                contentDescription = "发布",
+                                contentDescription = "Submit",
                                 tint = if (title.isNotBlank() && !uiState.isLoading)
                                     MaterialTheme.colors.primary
                                 else
@@ -114,7 +127,7 @@ fun RaiseIssueScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("标题") },
+                label = { Text("Title") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
@@ -125,7 +138,7 @@ fun RaiseIssueScreen(
             OutlinedTextField(
                 value = body,
                 onValueChange = { body = it },
-                label = { Text("发表评论（可选）") },
+                label = { Text("Comment (Optional)") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),

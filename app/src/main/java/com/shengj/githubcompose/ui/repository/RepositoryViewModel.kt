@@ -13,44 +13,70 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Repository Detail screen.
+ * Fetches repository details and README content concurrently for a given repository.
+ *
+ * @param repository The [GithubRepository] used for fetching repository data.
+ */
 @HiltViewModel
 class RepositoryViewModel @Inject constructor(
     private val repository: GithubRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RepositoryUiState())
+    /** StateFlow emitting the current [RepositoryUiState]. */
     val uiState: StateFlow<RepositoryUiState> = _uiState.asStateFlow()
 
+    /**
+     * Loads the details and README content for the specified repository.
+     * Updates the [uiState] with loading status, data, and potential errors.
+     *
+     * @param owner The owner of the repository.
+     * @param repoName The name of the repository.
+     */
     fun loadRepositoryDetails(owner: String, repoName: String) {
         viewModelScope.launch {
+            // Combine flows for repository details and README to load them concurrently
             combine(
-                repository.getRepository(owner, repoName).onStart { _uiState.value = _uiState.value.copy(isLoading = true) },
+                repository.getRepository(owner, repoName).onStart { 
+                    // Set loading state at the start of the combined flow
+                    _uiState.value = _uiState.value.copy(isLoading = true, error = null) 
+                },
                 repository.getReadme(owner, repoName)
             ) { repoResult, readmeResult ->
+                // Package results into a Pair for the collector
                 Pair(repoResult, readmeResult)
             }.catch { e ->
-                // Handle combined error
-                _uiState.value = _uiState.value.copy(isLoading = false, error = "Failed to load repository details: ${e.message}")
+                // Catch exceptions during the flow combination (e.g., network issues)
+                // TODO: Consider more specific error handling/messages based on exception type
+                _uiState.value = _uiState.value.copy(isLoading = false, error = "Failed to load repository data: ${e.message}")
             }.collect { (repoResult, readmeResult) ->
-                val currentError = _uiState.value.error // Keep existing error if any
+                // Process the results once both flows have emitted
                 val repo = repoResult.getOrNull()
                 val readme = readmeResult.getOrNull()
                 val repoError = if (repoResult.isFailure) repoResult.exceptionOrNull()?.message else null
                 val readmeError = if (readmeResult.isFailure) readmeResult.exceptionOrNull()?.message else null
 
-                var finalError = currentError
+                // Combine error messages, ignoring "No README found"
+                var combinedError: String? = null
                 if (repoError != null) {
-                    finalError = finalError?.plus("\nRepo Error: $repoError") ?: "Repo Error: $repoError"
+                    combinedError = "Repository: $repoError"
                 }
-                 if (readmeError != null && readmeError != "No README found") { // Ignore 'No README found' as a fatal error
-                    finalError = finalError?.plus("\nREADME Error: $readmeError") ?: "README Error: $readmeError"
+                if (readmeError != null && readmeError != "No README found") {
+                    val readmeErrorMsg = "README: $readmeError"
+                    combinedError = combinedError?.plus("\n$readmeErrorMsg") ?: readmeErrorMsg
                 }
+                // TODO: Consider moving error strings to resources for localization.
 
+                // Update the final UI state
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     repository = repo,
+                    // Assuming readme.content is already Base64 decoded by repository/model layer.
+                    // If not, decode here: readme?.content?.let { Base64.decode... } ?: ""
                     readmeContent = readme?.content,
-                    error = finalError?.takeIf { it.isNotEmpty() } // Only set error if there is one
+                    error = combinedError // Set final combined error message
                 )
             }
         }

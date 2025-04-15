@@ -42,6 +42,19 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.shengj.githubcompose.data.model.Issue
 import com.shengj.githubcompose.ui.components.ErrorRetry
 
+/**
+ * Composable function for the Issues list screen.
+ * Displays a list of issues for a specific repository, supports pagination and pull-to-refresh.
+ *
+ * Note: This screen shares structural similarity with other list screens ([SearchScreen], etc.).
+ * Consider refactoring to extract a common paginated list component.
+ *
+ * @param owner The repository owner.
+ * @param repoName The repository name.
+ * @param viewModel The [IssuesViewModel] providing UI state and data loading logic.
+ * @param onNavigateBack Callback invoked when the back navigation action is triggered.
+ * @param onNavigateToDetail Callback invoked when an issue item is clicked, providing details needed for navigation.
+ */
 @Composable
 fun IssuesScreen(
     owner: String,
@@ -54,28 +67,30 @@ fun IssuesScreen(
     val listState = rememberLazyListState()
     val swipeRefreshState = rememberSwipeRefreshState(uiState.isRefreshing)
 
-    // 监听滚动到底部
+    // Listen for scroll reaching the end to trigger loading more
     val shouldLoadMore by remember {
         derivedStateOf {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
-            lastVisibleItem?.index != null && 
-            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 2 &&
+            // Using -5 threshold for consistency
+            lastVisibleItem?.index != null &&
+            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 5 &&
             !uiState.isLoading &&
             !uiState.isLoadingMore &&
             uiState.hasMore
         }
     }
 
-    // 加载更多
+    // Trigger loading more when conditions are met
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
             viewModel.loadMore(owner, repoName)
         }
     }
 
-    // 初始加载
+    // Trigger initial load if needed (e.g., on first composition or if owner/repo changes)
     LaunchedEffect(owner, repoName) {
-        if (uiState.issues.isEmpty() && !uiState.isLoading && !uiState.isLoadingMore) {
+        // Only trigger initial load if list is empty and not already loading
+        if (uiState.issues.isEmpty() && !uiState.isLoading && !uiState.isLoadingMore && !uiState.isRefreshing) {
             viewModel.loadIssues(owner, repoName)
         }
     }
@@ -84,14 +99,14 @@ fun IssuesScreen(
         modifier = Modifier.statusBarsPadding(),
         topBar = {
             TopAppBar(
-                title = { Text("议题列表", color = Color.Black) },
+                title = { Text("Issues", color = Color.Black) }, // English title
                 backgroundColor = Color.White,
                 elevation = 0.dp,
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "返回",
+                            contentDescription = "Back", // English description
                             tint = Color.Black
                         )
                     }
@@ -111,15 +126,17 @@ fun IssuesScreen(
                     uiState.isLoading -> {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
+                    // Initial error state
                     uiState.error != null && uiState.issues.isEmpty() -> {
                         ErrorRetry(
-                            message = uiState.error ?: "发生未知错误",
+                            message = uiState.error ?: "An unknown error occurred", // English text
                             onRetry = { viewModel.loadIssues(owner, repoName) }
                         )
                     }
-                    uiState.issues.isEmpty() -> {
+                    // Empty state (loaded, but no issues)
+                    uiState.issues.isEmpty() && !uiState.isLoading && !uiState.isRefreshing -> {
                         Text(
-                            text = "暂无议题",
+                            text = "No issues found", // English text
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .padding(16.dp)
@@ -156,14 +173,14 @@ fun IssuesScreen(
                             }
                         }
 
-                        // 显示错误信息
+                        // Snackbar for errors when data is already present
                         if (uiState.error != null) {
                             Snackbar(
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
                                     .padding(16.dp)
                             ) {
-                                Text(text = uiState.error ?: "")
+                                Text(text = "Error: ${uiState.error}") // Add English prefix
                             }
                         }
                     }
@@ -173,6 +190,12 @@ fun IssuesScreen(
     }
 }
 
+/**
+ * Composable function displaying a single issue item in a Card.
+ *
+ * @param issue The [Issue] data to display.
+ * @param onClick Callback invoked when the card is clicked.
+ */
 @Composable
 fun IssueItem(
     issue: Issue,

@@ -1,6 +1,7 @@
 package com.shengj.githubcompose.ui.repository
 
 import android.util.Base64
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,6 +57,17 @@ import com.mikepenz.markdown.model.MarkdownTypography
 import com.shengj.githubcompose.ui.components.ErrorRetry
 import java.nio.charset.Charset
 
+/**
+ * Composable function for the Repository Detail screen.
+ * Displays repository information (name, description, stats) and its README content.
+ *
+ * @param owner The owner login of the repository.
+ * @param repoName The name of the repository.
+ * @param viewModel The [RepositoryViewModel] providing the UI state and loading logic.
+ * @param onNavigateBack Callback invoked when the back navigation action is triggered.
+ * @param onNavigateToRaiseIssue Callback invoked when the action to navigate to the raise issue screen is triggered.
+ * @param onNavigateToIssues Callback invoked when the action to navigate to the issues list screen is triggered.
+ */
 @Composable
 fun RepositoryScreen(
     owner: String,
@@ -68,6 +80,7 @@ fun RepositoryScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(owner, repoName) {
+        // Load details when owner/repoName changes
         viewModel.loadRepositoryDetails(owner, repoName)
     }
 
@@ -77,26 +90,28 @@ fun RepositoryScreen(
             TopAppBar(
                 title = { Text(repoName, color = Color.Black) },
                 backgroundColor = Color.White,
-                elevation = 0.dp,
+                elevation = 0.dp, // Flat top bar
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "返回",
+                            contentDescription = "Back", // English content description
                             tint = Color.Black
                         )
                     }
                 },
                 actions = {
+                    // Action to navigate to the Issues list
                     TextButton(
                         onClick = { onNavigateToIssues(owner, repoName) }
                     ) {
-                        Text("议题", color = MaterialTheme.colors.primary)
+                        Text("Issues", color = MaterialTheme.colors.primary) // English text
                     }
+                    // Action to navigate to the screen for creating a new issue
                     TextButton(
                         onClick = { onNavigateToRaiseIssue(owner, repoName) }
                     ) {
-                        Text("创建议题", color = MaterialTheme.colors.primary)
+                        Text("New Issue", color = MaterialTheme.colors.primary) // English text
                     }
                 }
             )
@@ -108,22 +123,25 @@ fun RepositoryScreen(
                 .padding(paddingValues)
         ) {
             when {
+                // Loading state
                 uiState.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
+                // Error state
                 uiState.error != null -> {
                     ErrorRetry(
-                        message = uiState.error ?: "发生未知错误",
+                        message = uiState.error ?: "An unknown error occurred", // Use English text
                         onRetry = { viewModel.loadRepositoryDetails(owner, repoName) }
                     )
                 }
+                // Success state with repository data
                 uiState.repository != null -> {
                     RepositoryContent(uiState = uiState)
                 }
+                // Fallback state (should ideally not be reached if loading/error/success covers all)
                 else -> {
-                     // Maybe an initial empty state or handle error where repo is null but no error message?
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                         Text("无法加载仓库信息")
+                         Text("Could not load repository information") // English text
                     }
                 }
             }
@@ -131,20 +149,29 @@ fun RepositoryScreen(
     }
 }
 
+/**
+ * Composable function displaying the main content of the repository details,
+ * including metadata and README.
+ *
+ * @param uiState The current [RepositoryUiState] containing repository and README data.
+ */
 @Composable
 fun RepositoryContent(uiState: RepositoryUiState) {
+    // Non-null assertion is safe here due to the check in the calling composable
     val repo = uiState.repository!!
     val scrollState = rememberScrollState()
     var decodedReadme by remember { mutableStateOf<String?>(null) }
     var isMarkdownVisible by remember { mutableStateOf(false) }
 
-    // Decode README content when it becomes available or changes
+    // Decode the Base64 encoded README content when it becomes available or changes.
     LaunchedEffect(uiState.readmeContent) {
         decodedReadme = uiState.readmeContent?.let {
             try {
+                // Decode Base64, removing potential newlines first
                 String(Base64.decode(it.replace("\n", ""), Base64.DEFAULT), Charset.forName("UTF-8"))
             } catch (e: Exception) {
-                "无法解码 README: ${e.message}"
+                Log.e("RepositoryScreen", "Failed to decode README content", e)
+                "Failed to decode README: ${e.message}" // English error message
             }
         }
     }
@@ -188,12 +215,13 @@ fun RepositoryContent(uiState: RepositoryUiState) {
                     onClick = { isMarkdownVisible = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("显示 README")
+                    Text("Show README") // English text
                 }
             } else {
-                // Use remember to prevent recomposition of markdown content
+                // Remember the potentially large decoded content to avoid re-processing on minor recompositions.
+                // Limit the content size to prevent performance issues with very large READMEs.
                 val markdownContent = remember(decodedReadme) {
-                    decodedReadme!!.take(10000) // Limit content size
+                    decodedReadme!!.take(10000) // Limit content size to 10k chars
                 }
                 
                 Markdown(
@@ -204,11 +232,17 @@ fun RepositoryContent(uiState: RepositoryUiState) {
                 )
             }
         } else if (uiState.readmeContent == null && !uiState.isLoading) {
-            Text("未找到 README 文件", color = Color.Gray)
+            // Display message if README is confirmed not found (and not just loading)
+            Text("README file not found", color = Color.Gray) // English text
         }
     }
 }
 
+/**
+ * Provides custom typography settings for the Markdown renderer.
+ * Uses MaterialTheme typography as a base.
+ * (Consider using library defaults if no customization is needed)
+ */
 @Composable
 fun markdownTypography(
     h1: TextStyle = MaterialTheme.typography.h4,
@@ -250,7 +284,11 @@ fun markdownTypography(
     table = table,
 )
 
-@Deprecated("Use `markdownColor` without text colors instead. Please set text colors via `markdownTypography`. This will be removed in a future release.")
+/**
+ * Provides custom color settings for the Markdown renderer.
+ * Uses MaterialTheme colors as a base.
+ * (Consider using library defaults if no customization is needed)
+ */
 @Composable
 fun markdownColor(
     text: Color = MaterialTheme.colors.onBackground,

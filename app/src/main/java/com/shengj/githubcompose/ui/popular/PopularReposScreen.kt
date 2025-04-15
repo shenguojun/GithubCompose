@@ -30,6 +30,17 @@ import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.profile.RepositoryCard
 
+/**
+ * Composable function for the Popular Repositories screen.
+ * Displays a list of popular GitHub repositories fetched from the API,
+ * supports pagination with pull-to-refresh and load-more.
+ *
+ * Note: This screen shares significant structural similarity with [SearchScreen].
+ * Consider refactoring to extract a common paginated list component.
+ *
+ * @param navController The [NavController] used for navigating to repository details.
+ * @param viewModel The [PopularReposViewModel] instance providing the UI state and data loading logic.
+ */
 @Composable
 fun PopularReposScreen(
     viewModel: PopularReposViewModel = hiltViewModel(),
@@ -39,6 +50,8 @@ fun PopularReposScreen(
     val listState = rememberLazyListState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading && !uiState.isLoadingMore)
 
+    // Derived state to determine if more data should be loaded.
+    // True when the last visible item is within 5 items of the end and not currently loading.
     val shouldLoadMore by remember {
         derivedStateOf {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
@@ -46,6 +59,7 @@ fun PopularReposScreen(
         }
     }
 
+    // Effect to trigger loading more data when shouldLoadMore becomes true.
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore && !uiState.isLoadingMore && uiState.hasMore) {
             viewModel.loadMorePopularRepos()
@@ -64,7 +78,7 @@ fun PopularReposScreen(
                 }
                 uiState.error != null && uiState.popularRepos.isEmpty() -> {
                     ErrorRetry(
-                        message = "加载失败: ${uiState.error}",
+                        message = "Failed to load: ${uiState.error}",
                         onRetry = { viewModel.refreshPopularRepos() }
                     )
                 }
@@ -101,7 +115,7 @@ fun PopularReposScreen(
                 Snackbar(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
                 ) {
-                    Text(text = "加载失败: ${uiState.error}")
+                    Text(text = "Failed to load: ${uiState.error}")
                 }
             }
         }

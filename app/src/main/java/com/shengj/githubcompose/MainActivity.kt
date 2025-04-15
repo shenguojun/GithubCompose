@@ -21,6 +21,9 @@ import com.shengj.githubcompose.ui.navigation.AppNavigation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+/**
+ * The main activity of the application, handling the entry point and OAuth callback.
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val authViewModel: AuthViewModel by viewModels()
@@ -30,17 +33,17 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
         enableEdgeToEdge()
 
-        // 设置系统栏为浅色模式（深色图标）
+        // Configure system bars for light mode (dark icons)
         WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = true
             isAppearanceLightNavigationBars = true
         }
 
         setContent {
-            // 记住系统UI控制器
+            // Remember the system UI controller
             val systemUiController = rememberSystemUiController()
 
-            // 设置状态栏颜色
+            // Set the status bar color
             SideEffect {
                 systemUiController.setStatusBarColor(
                     color = Color.White,
@@ -62,12 +65,19 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
     }
 
+    /**
+     * Handles the incoming intent, specifically looking for the OAuth callback URI.
+     * Extracts the authorization code or error details from the URI and passes
+     * them to the [AuthViewModel].
+     *
+     * @param intent The intent to handle, potentially containing the OAuth callback URI.
+     */
     private fun handleIntent(intent: Intent?) {
         val uri = intent?.data
         val scheme = uri?.scheme
         val host = uri?.host
         lifecycleScope.launch {
-            // Check if this Intent is for our callback scheme/host
+            // Check if this Intent is for our callback scheme ("shengj") and host ("callback")
             if (scheme == "shengj" && host == "callback") {
                 val code = uri.getQueryParameter("code")
                 if (code != null) {
