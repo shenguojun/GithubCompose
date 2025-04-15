@@ -13,9 +13,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.shengj.githubcompose.ui.login.AuthState
+import com.shengj.githubcompose.ui.login.AuthViewModel
 import com.shengj.githubcompose.ui.login.LoginScreen
-import com.shengj.githubcompose.ui.login.auth.AuthState
-import com.shengj.githubcompose.ui.login.auth.AuthViewModel
 import com.shengj.githubcompose.ui.profile.ProfileScreen
 
 @Composable

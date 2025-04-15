@@ -1,4 +1,4 @@
-package com.shengj.githubcompose.ui.login.auth
+package com.shengj.githubcompose.ui.login
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

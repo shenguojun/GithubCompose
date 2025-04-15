@@ -1,19 +1,29 @@
-package com.shengj.githubcompose.ui.login.auth
+package com.shengj.githubcompose.ui.login
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import com.shengj.githubcompose.ui.MainActivity
-import dagger.hilt.android.AndroidEntryPoint // Or your DI setup
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.shengj.githubcompose.AppNavigation
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 // Assuming you use Hilt for ViewModel injection
 @AndroidEntryPoint
-class OAuthCallbackActivity : ComponentActivity() {
+class LoginActivity : ComponentActivity() {
 
     // Obtain ViewModel instance (via Hilt, Koin, or manual Factory)
     private val authViewModel: AuthViewModel by viewModels()
@@ -21,6 +31,33 @@ class OAuthCallbackActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntent(intent)
+        enableEdgeToEdge()
+
+        // 设置系统栏为浅色模式（深色图标）
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true
+            isAppearanceLightNavigationBars = true
+        }
+
+        setContent {
+            // 记住系统UI控制器
+            val systemUiController = rememberSystemUiController()
+
+            // 设置状态栏颜色
+            SideEffect {
+                systemUiController.setStatusBarColor(
+                    color = Color.White,
+                    darkIcons = true
+                )
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colors.background
+            ) {
+                AppNavigation()
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -50,27 +87,13 @@ class OAuthCallbackActivity : ComponentActivity() {
                     val error = uri.getQueryParameter("error")
                     val errorDesc = uri.getQueryParameter("error_description")
                     Log.e("OAuthCallback", "OAuth Error: $error - $errorDesc")
-                    Toast.makeText(this@OAuthCallbackActivity, "Login failed: ${errorDesc ?: error}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@LoginActivity, "Login failed: ${errorDesc ?: error}", Toast.LENGTH_LONG).show()
                     // Optionally navigate back to login or show an error state
                 }
             } else {
                 Log.w("OAuthCallback", "Received unexpected intent: $uri")
             }
-            backToMain()
         }
     }
 
-    fun backToMain() {
-        // Instead of just finish(), explicitly bring the MainActivity to the front.
-        // This helps ensure the custom tab is cleared from view.
-        val mainActivityIntent = Intent(this, MainActivity::class.java).apply {
-            // These flags bring your app's task to the front and clear intermediate activities
-            // like this callback activity from the task stack associated with MainActivity.
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
-        startActivity(mainActivityIntent)
-
-        // Finish this translucent activity so it's removed.
-        finish()
-    }
 }

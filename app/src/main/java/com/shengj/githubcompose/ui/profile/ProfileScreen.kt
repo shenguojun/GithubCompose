@@ -54,7 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.shengj.githubcompose.data.model.Repo
 import com.shengj.githubcompose.data.model.User
-import com.shengj.githubcompose.ui.login.auth.AuthViewModel
+import com.shengj.githubcompose.ui.login.AuthViewModel
 
 @Composable
 fun ProfileScreen(
