@@ -79,4 +79,7 @@
     <string name="error_issue_detail_load_failed_default">Failed to load issue details</string>
     <string name="error_issue_create_failed_default">Failed to create issue</string>
 
+    <!-- Repository list -->
+    <string name="repositories_screen_title">Repositories</string>
+    <string name="repositories_content_description_back">Back</string>
 </resources>
