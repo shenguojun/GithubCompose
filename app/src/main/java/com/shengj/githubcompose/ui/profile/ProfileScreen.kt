@@ -289,8 +289,7 @@ fun ProfileScreenPreview() {
     )
     val dummyUiState = ProfileUiState(user = dummyUser, pinnedRepos = List(3) { dummyRepo })
     val navController = rememberNavController()
-    hiltViewModel()
-    
+
     MaterialTheme {
         UserProfileContent(uiState = dummyUiState, navController = navController, onLogout = {}) 
     }

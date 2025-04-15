@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +20,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -117,6 +119,7 @@ fun RepositoryContent(uiState: RepositoryUiState) {
     val repo = uiState.repository!!
     val scrollState = rememberScrollState()
     var decodedReadme by remember { mutableStateOf<String?>(null) }
+    var isMarkdownVisible by remember { mutableStateOf(false) }
 
     // Decode README content when it becomes available or changes
     LaunchedEffect(uiState.readmeContent) {
@@ -160,21 +163,32 @@ fun RepositoryContent(uiState: RepositoryUiState) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Render Markdown README
+        // Render Markdown README with lazy loading
         if (decodedReadme != null) {
-             Markdown(
-                 content = decodedReadme!!,
-                 typography = markdownTypography(),
-                 colors = markdownColor(),
-                 imageTransformer = Coil3ImageTransformerImpl
-             )
+            // Show a button to toggle markdown visibility
+            if (!isMarkdownVisible) {
+                TextButton(
+                    onClick = { isMarkdownVisible = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("显示 README")
+                }
+            } else {
+                // Use remember to prevent recomposition of markdown content
+                val markdownContent = remember(decodedReadme) {
+                    decodedReadme!!.take(10000) // Limit content size
+                }
+                
+                Markdown(
+                    content = markdownContent,
+                    typography = markdownTypography(),
+                    colors = markdownColor(),
+                    imageTransformer = Coil3ImageTransformerImpl
+                )
+            }
         } else if (uiState.readmeContent == null && !uiState.isLoading) {
-            // Show a message if README is explicitly null (and not loading)
             Text("未找到 README 文件", color = Color.Gray)
         }
-        // If readmeContent is not null but decodedReadme is null, it means decoding failed.
-        // The error message from decoding is already set in decodedReadme.
-
     }
 }
 
