@@ -45,15 +45,15 @@ fun LoginScreen(
     val systemUiController = rememberSystemUiController()
     SideEffect {
         systemUiController.setStatusBarColor(
-            color = Color.Black,
-            darkIcons = false // 使用白色图标
+            color = Color.White,
+            darkIcons = true // 使用黑色图标
         )
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black), // Set background to black
+            .background(Color.White), // Set background to white
         horizontalAlignment = Alignment.CenterHorizontally // Center children horizontally
     ) {
         // Top space for the Logo
@@ -64,7 +64,7 @@ fun LoginScreen(
             contentAlignment = Alignment.Center // Center the Logo within this Box
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_white),
+                painter = painterResource(id = R.drawable.ic_launcher),
                 contentDescription = "GitHub Logo",
                 modifier = Modifier.size(100.dp) // Set Logo size
             )
@@ -81,8 +81,8 @@ fun LoginScreen(
                 onClick = { onLoginClick(context, authUrl) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.White, // Button background white
-                    contentColor = Color.Black // Text color black
+                    backgroundColor = Color.Black, // Button background black
+                    contentColor = Color.White // Text color white
                 )
             ) {
                 Text(
@@ -105,7 +105,7 @@ fun launchCustomTab(context: Context, url: String) {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF000000) // 预览背景设为黑色
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF) // 预览背景设为白色
 @Composable
 fun LoginScreenPreview() {
     LoginScreen(onLoginClick = { _, _ -> /* Do nothing in preview click */ })

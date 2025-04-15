@@ -1,9 +1,8 @@
-package com.shengj.githubcompose.ui.login
+package com.shengj.githubcompose
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,14 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.shengj.githubcompose.ui.AppNavigation
+import com.shengj.githubcompose.ui.login.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-// Assuming you use Hilt for ViewModel injection
 @AndroidEntryPoint
-class LoginActivity : ComponentActivity() {
-
-    // Obtain ViewModel instance (via Hilt, Koin, or manual Factory)
+class MainActivity : ComponentActivity() {
     private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +52,7 @@ class LoginActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colors.background
             ) {
-                UserNavigation()
+                AppNavigation()
             }
         }
     }
@@ -64,7 +62,7 @@ class LoginActivity : ComponentActivity() {
         handleIntent(intent)
     }
 
-    fun handleIntent(intent: Intent?) {
+    private fun handleIntent(intent: Intent?) {
         val uri = intent?.data
         val scheme = uri?.scheme
         val host = uri?.host
@@ -72,27 +70,16 @@ class LoginActivity : ComponentActivity() {
             // Check if this Intent is for our callback scheme/host
             if (scheme == "shengj" && host == "callback") {
                 val code = uri.getQueryParameter("code")
-                // Optional but recommended: Verify the 'state' parameter here for CSRF protection
-                // val state = uri.getQueryParameter("state")
-                // if (isValidState(state)) { ... }
-
                 if (code != null) {
                     // Trigger token exchange in ViewModel
                     authViewModel.exchangeCodeForToken(code)
-                    // Optional: Show a brief loading message
-                    // Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show()
                 } else {
                     // Handle error: Code is missing
                     val error = uri.getQueryParameter("error")
                     val errorDesc = uri.getQueryParameter("error_description")
                     Log.e("OAuthCallback", "OAuth Error: $error - $errorDesc")
-                    Toast.makeText(this@LoginActivity, "Login failed: ${errorDesc ?: error}", Toast.LENGTH_LONG).show()
-                    // Optionally navigate back to login or show an error state
                 }
-            } else {
-                Log.w("OAuthCallback", "Received unexpected intent: $uri")
             }
         }
     }
-
-}
+} 

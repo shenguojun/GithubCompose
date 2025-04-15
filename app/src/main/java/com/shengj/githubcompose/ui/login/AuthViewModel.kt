@@ -20,7 +20,7 @@ sealed class AuthState {
     data class Error(val message: String) : AuthState() // An error occurred
 }
 
-@HiltViewModel // Or your DI annotation
+@HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: GithubRepository
 ) : ViewModel() {
