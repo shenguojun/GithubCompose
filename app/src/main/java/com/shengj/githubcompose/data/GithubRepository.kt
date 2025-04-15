@@ -68,26 +68,24 @@ class GithubRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    suspend fun searchRepos(query: String, language: String?): Flow<Result<List<Repo>>> = flow {
+    suspend fun searchRepos(query: String, page: Int = 1, perPage: Int = 20): Flow<Result<List<Repo>>> = flow {
         try {
-            // Construct the query string including language if provided
-            val searchQuery = buildString {
-                append(query)
-                if (!language.isNullOrBlank()) {
-                    append(" language:$language")
-                }
-            }
-            val response =
-                apiService.searchRepositories(query = searchQuery, sort = "stars", order = "desc")
+            val response = apiService.searchRepositories(
+                query = query,
+                sort = "stars",
+                order = "desc",
+                page = page,
+                perPage = perPage
+            )
             if (response.isSuccessful && response.body() != null) {
                 emit(Result.success(response.body()!!.items))
             } else {
                 emit(Result.failure(Exception("API Error: ${response.code()} ${response.message()}")))
             }
         } catch (e: Exception) {
-            emit(Result.failure(e)) // Network error etc.
+            emit(Result.failure(e))
         }
-    }.flowOn(Dispatchers.IO) // Run network call on IO thread
+    }.flowOn(Dispatchers.IO)
 
     suspend fun searchPopularRepos(page: Int = 1, perPage: Int = 20): Flow<Result<List<Repo>>> = flow {
         try {
