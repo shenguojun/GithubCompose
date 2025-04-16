@@ -1,13 +1,20 @@
 package com.shengj.githubcompose.data
 
 import com.tencent.mmkv.MMKV
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
- * A helper object for managing persistent data storage using MMKV.
- * Currently used for storing and retrieving the GitHub authentication token.
+ * A helper class for managing persistent data storage using MMKV.
+ * Now injectable via Hilt.
  */
-object DataStoreHelper {
-    private const val AUTH_TOKEN_KEY = "auth_token"
+@Singleton // Mark as Singleton for Hilt
+class DataStoreHelper @Inject constructor() { // Add @Inject constructor
+
+    companion object {
+        private const val AUTH_TOKEN_KEY = "auth_token"
+        private val mmkvInstance = MMKV.defaultMMKV()
+    }
 
     /**
      * Saves the GitHub authentication token to MMKV.
@@ -15,7 +22,7 @@ object DataStoreHelper {
      * @param token The token string to save.
      */
     fun saveToken(token: String) {
-        MMKV.defaultMMKV().encode(AUTH_TOKEN_KEY, token)
+        mmkvInstance.encode(AUTH_TOKEN_KEY, token)
     }
 
     /**
@@ -24,13 +31,13 @@ object DataStoreHelper {
      * @return The saved token string, or null if no token is found.
      */
     fun getToken(): String? {
-        return MMKV.defaultMMKV().decodeString(AUTH_TOKEN_KEY, null)
+        return mmkvInstance.decodeString(AUTH_TOKEN_KEY, null)
     }
 
     /**
      * Removes the saved GitHub authentication token from MMKV.
      */
     fun clearToken() {
-        MMKV.defaultMMKV().remove(AUTH_TOKEN_KEY)
+        mmkvInstance.remove(AUTH_TOKEN_KEY)
     }
 }
