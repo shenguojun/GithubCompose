@@ -151,7 +151,7 @@ private fun IssueDetailContent(issue: Issue) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // 标题
+        // Title
         Text(
             text = issue.title,
             style = MaterialTheme.typography.h5,
@@ -178,7 +178,7 @@ private fun IssueDetailContent(issue: Issue) {
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // 作者信息
+        // Author Info
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -210,7 +210,7 @@ private fun IssueDetailContent(issue: Issue) {
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // 内容
+        // Body
         if (!issue.body.isNullOrBlank()) {
             Text(
                 text = issue.body,
@@ -220,7 +220,7 @@ private fun IssueDetailContent(issue: Issue) {
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // 表情回应按钮
+        // Reaction Button
         OutlinedButton(
             onClick = { /* TODO: Implement reactions */ },
             modifier = Modifier.height(36.dp),
@@ -236,7 +236,7 @@ private fun IssueDetailContent(issue: Issue) {
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // 子问题区域
+        // Sub-issues Area
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
