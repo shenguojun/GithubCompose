@@ -17,6 +17,14 @@
 *   **屏幕旋转**: 支持横屏和竖屏模式。
 *   **错误处理**: 对网络请求等场景进行了适当的错误处理。
 
+## 下载 (Download)
+
+您可以直接下载最新版本的 APK：
+
+[![下载 APK](https://img.shields.io/badge/下载-APK-green.svg)](release/app-release.apk)
+
+*最低支持 Android 版本：Android 10 (API Level 29)*
+
 ## 应用截图 (Screenshots)
 
 | 热门与搜索 | 仓库详情 | 个人中心与问题 |

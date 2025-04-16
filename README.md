@@ -17,6 +17,14 @@ This application implements the following features:
 *   **Screen Rotation**: Supports both portrait and landscape modes.
 *   **Error Handling**: Implemented appropriate error handling for network requests and other scenarios.
 
+## Download
+
+You can download the latest release APK directly:
+
+[![Download APK](https://img.shields.io/badge/Download-APK-green.svg)](release/app-release.apk)
+
+*Minimum Android Version: Android 10 (API Level 29)*
+
 ## Screenshots
 
 | Popular & Search | Repository Details | Profile & Issues |
