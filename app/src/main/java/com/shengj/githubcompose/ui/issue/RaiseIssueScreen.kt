@@ -80,15 +80,19 @@ fun RaiseIssueScreen(
                         Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
+                backgroundColor = MaterialTheme.colors.surface,
+                contentColor = MaterialTheme.colors.onSurface,
                 actions = {
                     if (uiState.isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier
                                 .size(24.dp)
                                 .padding(4.dp),
-                            strokeWidth = 2.dp
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colors.onSurface
                         )
                     } else {
+                        val isEnabled = title.isNotBlank() && !uiState.isLoading
                         IconButton(
                             onClick = {
                                 viewModel.createIssue(
@@ -104,13 +108,13 @@ fun RaiseIssueScreen(
                                     }
                                 )
                             },
-                            enabled = title.isNotBlank() && !uiState.isLoading
+                            enabled = isEnabled
                         ) {
                             Icon(
                                 Icons.Filled.Send,
                                 contentDescription = stringResource(id = R.string.action_submit),
-                                tint = if (title.isNotBlank() && !uiState.isLoading)
-                                    MaterialTheme.colors.primary
+                                tint = if (isEnabled)
+                                    MaterialTheme.colors.onSurface
                                 else
                                     MaterialTheme.colors.onSurface.copy(alpha = 0.38f)
                             )
