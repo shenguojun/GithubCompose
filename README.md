@@ -17,6 +17,14 @@ This application implements the following features:
 *   **Screen Rotation**: Supports both portrait and landscape modes.
 *   **Error Handling**: Implemented appropriate error handling for network requests and other scenarios.
 
+## Screenshots
+
+| Popular & Search | Repository Details | Profile & Issues |
+|-----------------|-------------------|------------------|
+| ![Popular Screen](release/screenshots/popular-screen.png) | ![Repository Screen](release/screenshots/repo-screen.png) | ![Profile Screen](release/screenshots/profile-screen.png) |
+| ![Search Screen](release/screenshots/search-screen.png) | ![Repository List](release/screenshots/repo-list-screen.png) | ![Issue List](release/screenshots/issue-list-screen.png) |
+| ![Login Screen](release/screenshots/login-screen.png) | ![Issue Detail](release/screenshots/issue-detail-screen.png) | ![Create Issue](release/screenshots/create-issue-screen.png) |
+
 ## Setup
 
 1.  **Clone the Repository**:

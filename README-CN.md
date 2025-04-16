@@ -17,6 +17,14 @@
 *   **屏幕旋转**: 支持横屏和竖屏模式。
 *   **错误处理**: 对网络请求等场景进行了适当的错误处理。
 
+## 应用截图 (Screenshots)
+
+| 热门与搜索 | 仓库详情 | 个人中心与问题 |
+|-----------------|-------------------|------------------|
+| ![热门页面](release/screenshots/popular-screen.png) | ![仓库页面](release/screenshots/repo-screen.png) | ![个人中心](release/screenshots/profile-screen.png) |
+| ![搜索页面](release/screenshots/search-screen.png) | ![仓库列表](release/screenshots/repo-list-screen.png) | ![问题列表](release/screenshots/issue-list-screen.png) |
+| ![登录页面](release/screenshots/login-screen.png) | ![问题详情](release/screenshots/issue-detail-screen.png) | ![创建问题](release/screenshots/create-issue-screen.png) |
+
 ## 设置 (Setup)
 
 1.  **克隆仓库**:
