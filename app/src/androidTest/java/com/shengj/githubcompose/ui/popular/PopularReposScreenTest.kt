@@ -32,8 +32,51 @@ import org.junit.runner.RunWith
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private var shouldFail = false
+// 共享的测试配置和工具类
+object TestConfig {
+    // Test timeouts and delays
+    const val LOADING_TIMEOUT = 5000L
+    const val SCROLL_DELAY = 300L
+    const val NETWORK_DELAY = 1000L
+    const val LOAD_MORE_DELAY = 2000L
+    
+    // Pagination
+    const val ITEMS_PER_PAGE = 20
+    const val SCROLL_REPEAT_COUNT = 3
 
+    // Test state
+    var shouldFail = false
+
+    // Test data generators
+    fun createMockUser(index: Int) = User(
+        id = index.toLong(),
+        login = "user$index",
+        avatarUrl = "https://github.com/user$index.png"
+    )
+
+    fun createMockRepos(): List<Repo> = List(ITEMS_PER_PAGE) { index ->
+        Repo(
+            id = index.toLong(),
+            name = "Repo $index",
+            fullName = "Owner/Repo$index",
+            description = "Description $index",
+            owner = createMockUser(index),
+            stargazersCount = index * 100,
+            forksCount = index * 50,
+            language = "Kotlin",
+            htmlUrl = "https://github.com/owner$index/repo$index"
+        )
+    }
+}
+
+/**
+ * UI tests for the Popular Repositories screen.
+ * Tests various states and interactions of the screen including:
+ * - Initial loading state
+ * - Successful data loading
+ * - Error handling
+ * - Load more functionality
+ */
 @HiltAndroidTest
 @UninstallModules(RepositoryModule::class)
 @RunWith(AndroidJUnit4::class)
@@ -50,100 +93,82 @@ class PopularReposScreenTest {
 
     @Before
     fun setUp() {
-        shouldFail = false
+        TestConfig.shouldFail = false
         hiltRule.inject()
     }
 
     @Test
     fun loadingIndicator_isVisible_whenScreenLaunches() {
-        // Arrange: MainActivity is launched, Hilt provides ViewModel, which should initially be loading.
-
-        // Act: Find the loading indicator by its test tag.
-
-        // Assert: Verify the loading indicator is displayed.
-        // We might need a short wait if the initial state isn't immediate.
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule
-                .onAllNodesWithTag(PopularScreenTags.LOADING_INDICATOR)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        // Wait for loading indicator to appear
+        waitForNodeByTag(PopularScreenTags.LOADING_INDICATOR)
+        
+        // Verify loading state
         composeTestRule.onNodeWithTag(PopularScreenTags.LOADING_INDICATOR).assertIsDisplayed()
-
-        // Also assert that the list is not yet displayed
         composeTestRule.onNodeWithTag(PopularScreenTags.REPO_LIST).assertDoesNotExist()
     }
 
     @Test
     fun repoList_isDisplayed_whenDataLoadedSuccessfully() {
-        // 等待加载完成
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule
-                .onAllNodesWithTag(PopularScreenTags.REPO_LIST)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        // Wait for data to load
+        waitForNodeByTag(PopularScreenTags.REPO_LIST)
 
-        // 验证加载指示器消失
+        // Verify successful loading state
         composeTestRule.onNodeWithTag(PopularScreenTags.LOADING_INDICATOR).assertDoesNotExist()
-        
-        // 验证列表显示
         composeTestRule.onNodeWithTag(PopularScreenTags.REPO_LIST).assertIsDisplayed()
     }
 
     @Test
     fun errorMessage_isDisplayed_whenLoadingFails() {
-        // 等待错误信息显示
-        shouldFail = true
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule
-                .onAllNodesWithTag(ErrorRetryTags.CONTAINER)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        TestConfig.shouldFail = true
+        
+        // Wait for error container to appear
+        waitForNodeByTag(ErrorRetryTags.CONTAINER)
 
-        // 验证错误重试组件显示
+        // Verify error state
         composeTestRule.onNodeWithTag(ErrorRetryTags.MESSAGE).assertIsDisplayed()
         composeTestRule.onNodeWithTag(ErrorRetryTags.BUTTON).assertIsDisplayed()
-
-        // 验证加载指示器和列表都不显示
         composeTestRule.onNodeWithTag(PopularScreenTags.LOADING_INDICATOR).assertDoesNotExist()
         composeTestRule.onNodeWithTag(PopularScreenTags.REPO_LIST).assertDoesNotExist()
     }
 
     @Test
     fun loadMoreIndicator_isDisplayed_whenLoadingMoreData() {
-        // 等待初始数据加载完成并且列表可见
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
+        // Wait for initial data to load
+        waitForNodeByTag(PopularScreenTags.REPO_LIST)
+        waitForNodeByText("Repo 0")
+
+        // Scroll to bottom
+        scrollToBottom()
+
+        // Verify load more indicator
+        waitForNodeByTag(PopularScreenTags.LOAD_MORE_INDICATOR)
+        composeTestRule.onNodeWithTag(PopularScreenTags.LOAD_MORE_INDICATOR).assertIsDisplayed()
+    }
+
+    private fun waitForNodeByTag(tag: String, timeout: Long = TestConfig.LOADING_TIMEOUT) {
+        composeTestRule.waitUntil(timeoutMillis = timeout) {
             composeTestRule
-                .onAllNodesWithTag(PopularScreenTags.REPO_LIST)
+                .onAllNodesWithTag(tag)
                 .fetchSemanticsNodes().isNotEmpty()
         }
+    }
 
-        // 等待第一个仓库项显示
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
+    private fun waitForNodeByText(text: String, timeout: Long = TestConfig.LOADING_TIMEOUT) {
+        composeTestRule.waitUntil(timeoutMillis = timeout) {
             composeTestRule
-                .onAllNodesWithText("Repo 0")
+                .onAllNodesWithText(text)
                 .fetchSemanticsNodes().isNotEmpty()
         }
+    }
 
-        // 执行多次滚动操作，确保到达底部
+    private fun scrollToBottom() {
         val list = composeTestRule.onNodeWithTag(PopularScreenTags.REPO_LIST)
-        repeat(3) {
-            list.performScrollToIndex(19)
+        repeat(TestConfig.SCROLL_REPEAT_COUNT) {
+            list.performScrollToIndex(TestConfig.ITEMS_PER_PAGE - 1)
             composeTestRule.mainClock.autoAdvance = false
-            composeTestRule.mainClock.advanceTimeBy(300)
+            composeTestRule.mainClock.advanceTimeBy(TestConfig.SCROLL_DELAY)
             composeTestRule.mainClock.autoAdvance = true
         }
-
-        // 等待加载更多指示器显示
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule
-                .onAllNodesWithTag(PopularScreenTags.LOAD_MORE_INDICATOR)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-
-        // 验证加载更多指示器显示
-        composeTestRule
-            .onNodeWithTag(PopularScreenTags.LOAD_MORE_INDICATOR)
-            .assertIsDisplayed()
     }
 }
 
@@ -156,38 +181,13 @@ object TestRepositoryModule {
     fun provideGithubRepository(): GithubRepository {
         return object : GithubRepository {
             override suspend fun searchPopularRepos(page: Int, perPage: Int): Flow<Result<List<Repo>>> = flow {
-                delay(1000) // 模拟网络延迟
-                if (shouldFail) {
+                delay(TestConfig.NETWORK_DELAY)
+                if (TestConfig.shouldFail) {
                     emit(Result.failure(Exception("Failed to load repositories")))
                 } else if (page == 1) {
-                    val repos = List(20) { index ->
-                        Repo(
-                            id = index.toLong(),
-                            name = "Repo $index",
-                            fullName = "Owner/Repo$index",
-                            description = "Description $index",
-                            owner = User(
-                                id = index.toLong(),
-                                login = "owner$index",
-                                avatarUrl = "https://example.com/avatar$index",
-                                name = "Owner $index",
-                                company = "Company $index",
-                                blog = "https://blog$index.com",
-                                location = "Location $index",
-                                email = "email$index@example.com",
-                                bio = "Bio $index",
-                                followers = index * 10,
-                                following = index * 5
-                            ),
-                            stargazersCount = index * 100,
-                            forksCount = index * 50,
-                            language = "Kotlin",
-                            htmlUrl = "https://github.com/owner$index/repo$index"
-                        )
-                    }
-                    emit(Result.success(repos))
+                    emit(Result.success(TestConfig.createMockRepos()))
                 } else {
-                    delay(2000) // 模拟加载更多时的网络延迟
+                    delay(TestConfig.LOAD_MORE_DELAY)
                     emit(Result.failure(Exception("Failed to load repositories")))
                 }
             }
