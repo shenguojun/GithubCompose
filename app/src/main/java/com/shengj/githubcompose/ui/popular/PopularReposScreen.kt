@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,6 +32,11 @@ import com.shengj.githubcompose.R
 import com.shengj.githubcompose.ui.components.ErrorRetry
 import com.shengj.githubcompose.ui.navigation.AppScreen
 import com.shengj.githubcompose.ui.profile.RepositoryCard
+
+object PopularScreenTags {
+    const val LOADING_INDICATOR = "PopularLoadingIndicator"
+    const val REPO_LIST = "PopularRepoList"
+}
 
 /**
  * Composable function for the Popular Repositories screen.
@@ -76,7 +82,11 @@ fun PopularReposScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             when {
                 uiState.isLoading && uiState.popularRepos.isEmpty() -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .testTag(PopularScreenTags.LOADING_INDICATOR)
+                    )
                 }
                 uiState.error != null && uiState.popularRepos.isEmpty() -> {
                     ErrorRetry(
@@ -87,7 +97,9 @@ fun PopularReposScreen(
                 else -> {
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag(PopularScreenTags.REPO_LIST),
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
