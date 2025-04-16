@@ -1,6 +1,10 @@
 package com.shengj.githubcompose.data
 
 import com.google.common.truth.Truth.assertThat
+import com.shengj.githubcompose.data.model.Issue
+import com.shengj.githubcompose.data.model.IssueRequestBody
+import com.shengj.githubcompose.data.model.Repo
+import com.shengj.githubcompose.data.model.SearchResponse
 import com.shengj.githubcompose.data.model.User
 import com.shengj.githubcompose.data.network.GithubApiService
 import io.mockk.every
@@ -98,5 +102,151 @@ class GithubRepositoryTest {
         assertThat(result.isFailure).isTrue()
         assertThat(result.exceptionOrNull()).isEqualTo(exception)
         verify(mockApiService).getCurrentUser()
+    }
+
+    @Test
+    fun `searchRepos returns success with repositories list`() = runTest(testDispatcher) {
+        val mockRepos = listOf(
+            Repo(
+                id = 1,
+                name = "repo1",
+                fullName = "user1/repo1",
+                owner = User(login = "user1", id = 1, avatarUrl = ""),
+                description = "desc1",
+                stargazersCount = 100,
+                forksCount = 50,
+                language = "Kotlin",
+                htmlUrl = "https://github.com/user1/repo1"
+            ),
+            Repo(
+                id = 2,
+                name = "repo2",
+                fullName = "user2/repo2",
+                owner = User(login = "user2", id = 2, avatarUrl = ""),
+                description = "desc2",
+                stargazersCount = 200,
+                forksCount = 100,
+                language = "Java",
+                htmlUrl = "https://github.com/user2/repo2"
+            )
+        )
+        val searchResponse = SearchResponse(
+            totalCount = 2,
+            incompleteResults = false,
+            items = mockRepos
+        )
+        val successResponse: Response<SearchResponse> = Response.success(searchResponse)
+
+        whenever(mockApiService.searchRepositories(
+            query = "test",
+            sort = "stars",
+            order = "desc",
+            page = 1,
+            perPage = 20
+        )).thenReturn(successResponse)
+
+        val result = repository.searchRepos("test").first()
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrNull()).isEqualTo(mockRepos)
+    }
+
+    @Test
+    fun `searchPopularRepos returns success with popular repositories`() = runTest(testDispatcher) {
+        val mockRepos = listOf(
+            Repo(
+                id = 1,
+                name = "popular1",
+                fullName = "user1/popular1",
+                owner = User(login = "user1", id = 1, avatarUrl = ""),
+                description = "desc1",
+                stargazersCount = 1000,
+                forksCount = 500,
+                language = "Kotlin",
+                htmlUrl = "https://github.com/user1/popular1"
+            ),
+            Repo(
+                id = 2,
+                name = "popular2",
+                fullName = "user2/popular2",
+                owner = User(login = "user2", id = 2, avatarUrl = ""),
+                description = "desc2",
+                stargazersCount = 2000,
+                forksCount = 1000,
+                language = "Java",
+                htmlUrl = "https://github.com/user2/popular2"
+            )
+        )
+        val searchResponse = SearchResponse(
+            totalCount = 2,
+            incompleteResults = false,
+            items = mockRepos
+        )
+        val successResponse: Response<SearchResponse> = Response.success(searchResponse)
+
+        whenever(mockApiService.searchRepositories(
+            query = "stars:>1",
+            sort = "stars",
+            order = "desc",
+            page = 1,
+            perPage = 20
+        )).thenReturn(successResponse)
+
+        val result = repository.searchPopularRepos().first()
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrNull()).isEqualTo(mockRepos)
+    }
+
+    @Test
+    fun `createIssue returns success with created issue`() = runTest(testDispatcher) {
+        val mockIssue = Issue(
+            id = 1,
+            number = 1,
+            title = "Test Issue",
+            body = "Test Body",
+            state = "open",
+            createdAt = "2024-03-20T10:00:00Z",
+            updatedAt = "2024-03-20T10:00:00Z",
+            user = User(login = "user1", id = 1, avatarUrl = "")
+        )
+        val successResponse: Response<Issue> = Response.success(mockIssue)
+
+        whenever(mockApiService.createIssue(
+            owner = "testowner",
+            repo = "testrepo",
+            issueRequestBody = IssueRequestBody(title = "Test Issue", body = "Test Body")
+        )).thenReturn(successResponse)
+
+        val result = repository.createIssue(
+            owner = "testowner",
+            repoName = "testrepo",
+            title = "Test Issue",
+            body = "Test Body"
+        ).first()
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrNull()).isEqualTo(mockIssue)
+    }
+
+    @Test
+    fun `createIssue returns failure on API error`() = runTest(testDispatcher) {
+        val errorResponse: Response<Issue> = Response.error(403, "Forbidden".toResponseBody(null))
+
+        whenever(mockApiService.createIssue(
+            owner = "testowner",
+            repo = "testrepo",
+            issueRequestBody = IssueRequestBody(title = "Test Issue", body = "Test Body")
+        )).thenReturn(errorResponse)
+
+        val result = repository.createIssue(
+            owner = "testowner",
+            repoName = "testrepo",
+            title = "Test Issue",
+            body = "Test Body"
+        ).first()
+
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.exceptionOrNull()?.message).contains("API Error: 403")
     }
 }
