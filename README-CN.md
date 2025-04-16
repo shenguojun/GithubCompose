@@ -73,6 +73,19 @@
 
 有关应用程序架构的详细信息，请参阅 [设计方案](DESIGN-CN.md)。
 
+### 架构概览
+
+本应用采用 MVVM (Model-View-ViewModel) 架构模式，主要包含以下关键组件：
+
+#### 组件图
+![组件图](resources/design/Component-Diagram.png)
+
+#### 类图
+![类图](resources/design/Class-Diagram.png)
+
+#### 登录流程时序图
+![登录时序图](resources/design/Login-Sequence-Diagram.png)
+
 ## 许可证 (License)
 
 ```

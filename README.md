@@ -73,6 +73,19 @@ This application implements the following features:
 
 For details on the application's architecture, see the [Design Proposal](DESIGN.md).
 
+### Architecture Overview
+
+The application follows the MVVM (Model-View-ViewModel) architecture pattern and is organized into the following key components:
+
+#### Component Diagram
+![Component Diagram](resources/design/Component-Diagram.png)
+
+#### Class Diagram
+![Class Diagram](resources/design/Class-Diagram.png)
+
+#### Login Flow Sequence Diagram
+![Login Sequence Diagram](resources/design/Login-Sequence-Diagram.png)
+
 ## License
 
 ```
