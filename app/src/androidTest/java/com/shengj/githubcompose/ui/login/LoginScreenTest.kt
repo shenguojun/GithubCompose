@@ -18,21 +18,35 @@ import androidx.test.espresso.intent.rule.IntentsRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.shengj.githubcompose.MainActivity
 import com.shengj.githubcompose.R
+import com.shengj.githubcompose.di.RepositoryModule
 import com.shengj.githubcompose.ui.navigation.BottomNavItem
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import org.hamcrest.Matchers.allOf
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@HiltAndroidTest
+@UninstallModules(RepositoryModule::class)
 @RunWith(AndroidJUnit4::class)
 class LoginScreenTest {
 
-    // Chain the rules: IntentsRule needs to wrap the Activity rule
-    @get:Rule
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
     val intentsRule = IntentsRule()
 
-    @get:Rule
+    @get:Rule(order = 2)
     val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Before
+    fun setUp() {
+        hiltRule.inject()
+    }
 
     @Test
     fun loginScreen_displays_when_profileTabClicked_andNotLoggedIn() {
