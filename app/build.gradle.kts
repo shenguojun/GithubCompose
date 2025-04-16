@@ -140,7 +140,12 @@ dependencies {
 
     // Dependencies for local unit tests
     testImplementation(composeBom)
-    testImplementation(libs.junit4)
+    testImplementation(libs.junit5.api)
+    testRuntimeOnly(libs.junit5.engine)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.mockk)
     testImplementation(libs.androidx.archcore.testing)
     testImplementation(libs.kotlinx.coroutines.android)
     testImplementation(libs.kotlinx.coroutines.test)
