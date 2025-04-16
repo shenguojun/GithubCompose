@@ -68,7 +68,7 @@ class ProfileViewModel @Inject constructor(
                         // User loaded successfully, update state (isLoading will be handled by pinned repo load)
                         _uiState.value = ProfileUiState(isLoading = true, user = user) // Keep loading true while fetching pinned repos
                         // Load pinned repos now that we have the username
-                        loadPinnedRepos(user.login)
+                        loadRecentRepos(user.login)
                     }.onFailure { e ->
                         // Handle failure from the API response for user profile
                         _uiState.value = ProfileUiState(isLoading = false, error = e.message ?: "Failed to load profile")
@@ -79,15 +79,15 @@ class ProfileViewModel @Inject constructor(
     }
 
     /**
-     * Loads the user's pinned repositories (or recently pushed, see note).
+     * Loads the user's recent repositories (or recently pushed, see note).
      * Updates the [uiState], preserving existing user data and handling loading/error states.
      *
      * Note: Relies on `repository.getRecentlyPushedRepos` which might actually fetch recently pushed repos.
      * Verify the implementation in [GithubRepository] and [GithubApiService].
      *
-     * @param username The login name of the user whose pinned repos should be loaded.
+     * @param username The login name of the user whose recent repos should be loaded.
      */
-    private fun loadPinnedRepos(username: String) {
+    private fun loadRecentRepos(username: String) {
         viewModelScope.launch {
             // Fetch recently pushed repos (method name corrected)
             repository.getRecentlyPushedRepos(username)

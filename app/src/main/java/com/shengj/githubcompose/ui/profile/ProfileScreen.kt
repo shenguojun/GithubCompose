@@ -205,7 +205,7 @@ fun RepositorySection(
         // Pinned Repositories
         if (uiState.pinnedRepos.isNotEmpty()) {
             Text(
-                text = stringResource(id = R.string.profile_pinned_title),
+                text = stringResource(id = R.string.profile_recent_title),
                 style = MaterialTheme.typography.subtitle1,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -218,7 +218,7 @@ fun RepositorySection(
                 }
             }
         } else if (!uiState.isLoading) {
-            Text(stringResource(id = R.string.profile_no_pinned_repos), modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
+            Text(stringResource(id = R.string.profile_no_recent_repos), modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
         }
     }
 }
