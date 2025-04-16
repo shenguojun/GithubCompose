@@ -23,7 +23,7 @@ You can download the latest release APK directly:
 
 [![Download APK](https://img.shields.io/badge/Download-APK-green.svg)](release/app-release.apk)
 
-*Minimum Android Version: Android 10 (API Level 29)*
+*Minimum Android Version: Android 7.0 (API Level 24)*
 
 ## Screenshots
 
@@ -56,7 +56,7 @@ You can download the latest release APK directly:
 
 1.  Open the project using Android Studio (latest stable version recommended).
 2.  Wait for Gradle to sync and download dependencies.
-3.  Select an emulator or connect a physical device (Android API Level 29 or higher required).
+3.  Select an emulator or connect a physical device (Android API Level 24 or higher required).
 4.  Click the "Run" button to compile and launch the application.
 
 ## Tech Stack

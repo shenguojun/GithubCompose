@@ -23,7 +23,7 @@
 
 [![下载 APK](https://img.shields.io/badge/下载-APK-green.svg)](release/app-release.apk)
 
-*最低支持 Android 版本：Android 10 (API Level 29)*
+*最低支持 Android 版本：Android 7.0 (API Level 24)*
 
 ## 应用截图 (Screenshots)
 
@@ -56,7 +56,7 @@
 
 1.  使用 Android Studio (推荐最新稳定版) 打开项目。
 2.  等待 Gradle 同步完成依赖项下载。
-3.  选择一个模拟器或连接一个物理设备（需要 Android API Level 29 或更高版本）。
+3.  选择一个模拟器或连接一个物理设备（需要 Android API Level 24 或更高版本）。
 4.  点击 "Run" 按钮编译并运行应用。
 
 ## 技术栈 (Tech Stack)
