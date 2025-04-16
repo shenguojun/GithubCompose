@@ -56,6 +56,10 @@ Based on the requirements document, this application implements the following fe
 *   **API**: GitHub REST API v3
 *   **Authentication**: OAuth 2.0
 
+## Design
+
+For details on the application's architecture, see the [Design Proposal](DESIGN.md).
+
 ## License
 
 ```

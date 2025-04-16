@@ -54,7 +54,11 @@
     *   Coroutines (用于异步处理)
 *   **网络**: Retrofit, OkHttp
 *   **API**: GitHub REST API v3
-*   **认证**: OAuth 2.0 
+*   **认证**: OAuth 2.0
+
+## 设计 (Design)
+
+有关应用程序架构的详细信息，请参阅 [设计方案](DESIGN-CN.md)。
 
 ## 许可证 (License)
 
