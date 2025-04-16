@@ -25,7 +25,7 @@
     cd GithubCompose
     ```
 2.  **配置 GitHub OAuth 应用**:
-    *   您需要先在 GitHub 上注册一个 OAuth Application。访问 [GitHub Developer Settings](https://github.com/settings/developers) 创建。
+    *   您需要先在 GitHub 上注册一个 OAuth Application。访问 [GitHub Developer Settings](https://github.com/settings/apps) 创建。
     *   设置 `Authorization callback URL` 为 `githubcompose://callback`。
     *   创建完成后，您将获得 `Client ID` 和 `Client Secret`。
 3.  **创建 `local.properties`**:

@@ -25,7 +25,7 @@ Based on the requirements document, this application implements the following fe
     cd GithubCompose
     ```
 2.  **Configure GitHub OAuth Application**:
-    *   You need to register an OAuth Application on GitHub first. Visit [GitHub Developer Settings](https://github.com/settings/developers) to create one.
+    *   You need to register an OAuth Application on GitHub first. Visit [GitHub Developer Settings](https://github.com/settings/apps) to create one.
     *   Set the `Authorization callback URL` to `githubcompose://callback`.
     *   After creation, you will get a `Client ID` and a `Client Secret`.
 3.  **Create `local.properties`**:
