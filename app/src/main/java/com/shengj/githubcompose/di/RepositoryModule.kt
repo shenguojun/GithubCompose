@@ -1,5 +1,7 @@
 package com.shengj.githubcompose.di
 
+import com.shengj.githubcompose.data.DataStore
+import com.shengj.githubcompose.data.DataStoreHelper
 import com.shengj.githubcompose.data.GithubRepository
 import com.shengj.githubcompose.data.GithubRepositoryImpl
 import dagger.Binds
@@ -15,4 +17,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindGithubRepository(impl: GithubRepositoryImpl): GithubRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDataStore(impl: DataStoreHelper): DataStore
 } 

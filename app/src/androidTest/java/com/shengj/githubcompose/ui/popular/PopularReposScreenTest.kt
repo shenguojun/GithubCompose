@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// 共享的测试配置和工具类
+// Shared test configuration and utility classes
 object TestConfig {
     // Test timeouts and delays
     const val LOADING_TIMEOUT = 5000L

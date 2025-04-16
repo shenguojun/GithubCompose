@@ -22,7 +22,7 @@ import javax.inject.Singleton
 @Singleton // Mark as Singleton if appropriate for Hilt
 class GithubRepositoryImpl @Inject constructor(
     private val apiService: GithubApiService,
-    private val dataStoreHelper: DataStoreHelper // Inject DataStoreHelper
+    private val dataStore: DataStore
 ) : GithubRepository { 
 
     private val clientId = BuildConfig.GITHUB_CLIENT_ID
@@ -196,10 +196,10 @@ class GithubRepositoryImpl @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     // Inject DataStoreHelper instead of accessing statically
-    override fun saveAuthToken(token: String) { dataStoreHelper.saveToken(token) }
-    override fun clearAuthToken() { dataStoreHelper.clearToken() }
-    override fun isAuthenticated(): Boolean = dataStoreHelper.getToken() != null
-    override fun getToken(): String? = dataStoreHelper.getToken()
+    override fun saveAuthToken(token: String) { dataStore.saveToken(token) }
+    override fun clearAuthToken() { dataStore.clearToken() }
+    override fun isAuthenticated(): Boolean = dataStore.getToken() != null
+    override fun getToken(): String? = dataStore.getToken()
     
     // Keep these methods within Impl if they are implementation details
     // Or move to interface if they need to be part of the contract
