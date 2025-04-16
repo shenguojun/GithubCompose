@@ -4,7 +4,7 @@ An Android GitHub client built with Jetpack Compose.
 
 ## Features
 
-Based on the requirements document, this application implements the following features:
+This application implements the following features:
 
 *   **Anonymous Browsing**: Browse popular GitHub repositories without logging in.
 *   **Repository Details**: View detailed information about a repository (e.g., star count, description, language).
