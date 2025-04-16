@@ -36,6 +36,7 @@ import com.shengj.githubcompose.ui.profile.RepositoryCard
 object PopularScreenTags {
     const val LOADING_INDICATOR = "PopularLoadingIndicator"
     const val REPO_LIST = "PopularRepoList"
+    const val LOAD_MORE_INDICATOR = "PopularLoadMoreIndicator"
 }
 
 /**
@@ -116,7 +117,9 @@ fun PopularReposScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     CircularProgressIndicator(
-                                        modifier = Modifier.size(32.dp),
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .testTag(PopularScreenTags.LOAD_MORE_INDICATOR),
                                         strokeWidth = 2.dp
                                     )
                                 }

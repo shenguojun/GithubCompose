@@ -16,10 +16,17 @@ import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.shengj.githubcompose.R
+
+object ErrorRetryTags {
+    const val CONTAINER = "ErrorRetryContainer"
+    const val MESSAGE = "ErrorRetryMessage"
+    const val BUTTON = "ErrorRetryButton"
+}
 
 /**
  * A composable function that displays an error message with an icon and a retry button.
@@ -37,7 +44,8 @@ fun ErrorRetry(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .testTag(ErrorRetryTags.CONTAINER),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -51,10 +59,14 @@ fun ErrorRetry(
         Text(
             text = message,
             color = MaterialTheme.colors.error,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.testTag(ErrorRetryTags.MESSAGE)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRetry) {
+        Button(
+            onClick = onRetry,
+            modifier = Modifier.testTag(ErrorRetryTags.BUTTON)
+        ) {
             Text(stringResource(id = R.string.button_retry))
         }
     }
