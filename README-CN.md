@@ -55,6 +55,11 @@
 *   **网络**: Retrofit, OkHttp
 *   **API**: GitHub REST API v3
 *   **认证**: OAuth 2.0
+*   **测试框架**:
+    *   JUnit 4 (单元测试)
+    *   Mockito (Mock 框架)
+    *   Espresso (UI 测试)
+    *   Compose UI Testing (Compose UI 测试)
 
 ## 设计 (Design)
 

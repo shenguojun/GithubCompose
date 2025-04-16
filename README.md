@@ -55,6 +55,11 @@ Based on the requirements document, this application implements the following fe
 *   **Networking**: Retrofit, OkHttp
 *   **API**: GitHub REST API v3
 *   **Authentication**: OAuth 2.0
+*   **Testing**:
+    *   JUnit 4 (Unit Testing)
+    *   Mockito (Mocking Framework)
+    *   Espresso (UI Testing)
+    *   Compose UI Testing
 
 ## Design
 
