@@ -42,7 +42,7 @@ You can download the latest release APK directly:
     ```
 2.  **Configure GitHub OAuth Application**:
     *   You need to register an OAuth Application on GitHub first. Visit [GitHub Developer Settings](https://github.com/settings/apps) to create one.
-    *   Set the `Authorization callback URL` to `githubcompose://callback`.
+    *   Set the `Authorization callback URL` to `shengj://callback`.
     *   After creation, you will get a `Client ID` and a `Client Secret`.
 3.  **Create `local.properties`**:
     *   Create a file named `local.properties` in the project's root directory.
